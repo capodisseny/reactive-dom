@@ -1,0 +1,157 @@
+
+<script src="reactive-dom.js"  ></script>
+<!-- <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script> -->
+<!-- <script src="//unpkg.com/alpinejs" defer></script> -->
+
+
+<div >
+
+        <div >
+            <h1>Example</h1>
+            <p >Example content {{input}}</p>
+
+            {{time}} 
+        </div>
+
+        <div>
+
+            <h2>Code</h2> {{renderingTime}} ms  
+            <button  onclick="addRows">Add 1000 rows </button>
+            <h2>Tasks</h2>
+            <div  s-show="{{!input}}">Imput empty</div>
+            <ul s-show="{{tasks}}"  s-bind="{{attrs}}">
+       
+                <div>some content</div>
+         
+                <template s-loop="{{task,i in tasks}}" >
+                     <li data-task-id="{{activeTab}}""> {{i}}  {{task}}
+                        <div s-show="{{activeTab}}">
+
+                            Show tabsss
+                            {{i}}
+                     
+                         </div>
+                        
+                    </li>
+ 
+                </template>
+                <div>some content</div>
+
+             
+            </ul>
+
+            {{attrs}}
+            
+            <input  onkeypress="addTask" value="{{input}}" type="text">
+
+            <input  onkeypress="addTask" value="{{attrs.style}}" type="text">
+        
+            <button  onclick="addTask">Add task</button>
+           
+        
+    </div>
+
+
+    Task tabs
+   
+    <button onclick="toggleTabs">Hide tabs     {{activeTab}}</button>
+
+
+    <button  s-if="{{activeTab}}" onclick="increment">Hide tabs  {{count}}   {{activeTab}}</button>
+
+    {{activeTab}}
+
+
+
+    <!-- <div s-show="{{activeTab}}">
+
+       Show tabsss
+
+    </div>
+    <div s-reactive style="display:flex; flex-direction:row">
+       
+        <div s-loop="{{task in tasks}}" > 
+
+            <div  s-show="{{activeTab}}"  >
+
+                tab content {{activeTab}} {{task}}
+
+            </div>
+
+    </div>
+    </div> -->
+</div>
+<script>
+// import functions ref, reactive, ...
+
+    // import {reactive , ref} from "/src/reactive-dom.js";
+    const data = reactive({
+        some:"some",
+        input:"",
+        attrs:{
+            class:"some-class",
+            style:"color:red"
+        },
+        code:`
+                console.log("the codeee is ehere", {some:"ada"})
+        `,
+        tasks:[ "Task1"],
+        activeTab:false,
+        count:0,
+        renderingTime: "Click add rows",
+        time:0
+      
+    });
+
+
+    setInterval(()=>{
+
+        data.time = new Date().toTimeString()
+    }, 1000)
+
+
+
+    console.log("data", data)
+    data.removeTask = (i, tasks)=>{
+
+        tasks.splice(i, 1)
+      
+    }
+    data.increment = ()=>{
+
+        data.count++
+    }
+
+    let arrays = Array.from(Array(1000)).map((r, i)=>"Task "+i)
+    data.addRows = ()=>{
+        debugger
+
+        let start = new Date().getTime()
+         data.tasks.push(...arrays)
+            
+
+            nextTick(()=>{
+                data.renderingTime = new Date().getTime() - start
+                
+                debugger
+            })
+
+    }
+    data.toggleTabs = ()=>{
+
+        data.activeTab = !data.activeTab
+    }
+    data.addTask = (evt, i)=>{
+
+        if(evt.key && evt.key !== "Enter") return
+        
+        data.tasks.push(data.input)
+        data.input = ""
+
+        
+    }
+
+    createContext( data )
+
+
+</script>

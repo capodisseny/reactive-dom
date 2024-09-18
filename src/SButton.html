@@ -1,0 +1,31 @@
+<template>
+   
+
+   
+    <button>
+        <slot name="before"><p>None</p></slot>
+        {{label}}
+        <slot name="after"><p>None</p></slot>
+    </button>
+
+    <style>
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 14px 20px;
+            margin: 8px 0;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+        }
+    </style>
+
+</template>
+
+<script>
+
+    let {button} = ref("button")
+
+
+</script>
+   

@@ -1,0 +1,164 @@
+
+
+
+
+
+Effect and ReactiveHandler objects
+
+
+//quick diferences
+ReactiveHandler handles the mutations
+
+Effect handles the response to this mutations
+
+
+
+Handler{
+
+    get(){
+
+
+        //save the current effect // who is watching and what property is watching
+
+        /**
+         * 
+        [ {
+                effect:{
+                    proprties:[
+                        {
+                            proxy: p1,
+                            prop: some
+                        },
+                        {
+                            proxy: p2,
+                            prop: arr
+                        }
+                        {
+                            proxy: p2,
+                            prop: another
+                        }
+                    ]
+                    }
+                
+            }
+        ]
+         */
+        if(currentEffect) this.effects.push(effect)
+
+    },
+
+    set(){
+
+
+        //trigger the effectss
+        this.triggerUpdate(payload)
+    }
+
+    triggerUpdate(){
+
+
+        //
+
+
+        //add to queue
+
+
+    }
+
+
+
+}
+Effect {
+
+    props
+}
+
+
+//proxies
+p1  ={
+
+    some:{
+
+    }
+}
+
+p2 = {
+
+    another:{
+
+        arr:[]
+    }
+}
+
+
+
+effect(()=>{
+
+
+    //track this proxy //this effect will track [another and arr]
+   let v =  p2.another.arr
+
+   //track this proxy
+    let b = p1.some
+
+    console.log(v, b)
+})
+
+
+
+
+//the handler would be like 
+{
+
+    effects: [effect1, effect2]
+}
+
+//the efect now 
+
+effect1:{
+    observing:[ WeakMap
+        [ob1, "some"],
+        [obj2, "ann"],
+        [obj2, "another"]
+    ]
+}
+
+//modify the proxy
+p1.some = 1
+
+
+//new the handler would be like
+{
+
+    effects: [effect1, effect2],
+    nextUpdate:{
+        some: payload
+    }
+    static queue:[
+        handler
+        //or 
+        paylaod
+    ]
+}
+
+
+
+
+Now I can do this:
+
+queue.foreach(handler=>{
+
+
+    handler.effects.foreach(effect=>{
+
+        let observingprops =  effect.observing.get( this.target)
+
+        Object.keys(handler.nextUpdate).foreach((key)=>{
+                if(observingprops[key]){
+                    effect.run(handler.nextUpdate[key])
+                }
+        })
+        
+    })
+    
+})
