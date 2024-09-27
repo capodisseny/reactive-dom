@@ -1,0 +1,205 @@
+
+<script src="reactive-dom.js"  ></script>
+<!-- <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script> -->
+<!-- <script src="//unpkg.com/alpinejs" defer></script> -->
+
+
+<div >
+
+        <div @click="">
+            <h1>Example</h1>
+            <p >Example content {{input}}</p>
+
+        </div>
+
+        <div>
+
+            <h2>Code</h2> {{renderingTime}} ms  
+            <button  onclick="addRows">Add 1000 rows </button>
+            
+            <input   value="{{rowsToAdd}}" type="text">
+            <button  onclick="addRows(rowsToAdd)">Add 10 </button>
+
+            <h2 s-bind="{{attrs}}">Tasks</h2>
+            <div  s-show="{{!input}}">Imput empty</div>
+            <ul s-show="{{tasks}}"  >
+       
+                <div>some content</div>
+         
+                <template s-loop="{{task,i in tasks}}" >
+                     <li data-task-id="{{i}}" s-bind="{{attrs}}"> 
+                        {{i}}  {{task.name}}
+                        <div s-show="{{activeTab}}">
+
+                            Show tabsss
+                            {{i}}
+                     
+                            <button  onclick="removeTask(i)">Remove</button>
+                         </div>
+
+                         <template s-loop="{{person,i in task.responsibles}}" >
+                            <li data-task-id="{{person}}""> {{person}}
+                              Hola carcola
+                               
+                           </li>
+        
+                       </template>
+                        
+                    </li>
+ 
+                </template>
+
+             
+                <div>some content</div>
+
+             
+            </ul>
+
+            {{attrs}}
+            
+            <input  onkeypress="addTask" value="{{input}}" type="text">
+
+            <input  value="{{attrs.style}}" type="text">
+        
+            <button  onclick="addTask">Add task</button>
+           
+        
+    </div>
+
+
+    Task tabs
+   
+    <button onclick="toggleTabs">Hide tabs     {{activeTab}}</button>
+
+
+    <button  s-show="{{activeTab}}" onclick="increment">Hide tabs  {{count}}   {{activeTab}}</button>
+
+    {{activeTab}}
+
+
+
+    <!-- <div s-show="{{activeTab}}">
+
+       Show tabsss
+
+    </div>
+    <div s-reactive style="display:flex; flex-direction:row">
+       
+        <div s-loop="{{task in tasks}}" > 
+
+            <div  s-show="{{activeTab}}"  >
+
+                tab content {{activeTab}} {{task}}
+
+            </div>
+
+    </div>
+    </div> -->
+</div>
+<script>
+// import functions ref, reactive, ...
+
+    // import {reactive , ref} from "/src/reactive-dom.js";
+    const data = reactive({
+        some:"some",
+        input:"Some input",
+        attrs:{
+            class:"some-class",
+            style:"color:red"
+        },
+        code:`
+                console.log("the codeee is ehere", {some:"ada"})
+        `,
+        tasks:[ {
+                name:"Task 1",
+                description:"Description 1",
+                responsibles:["John", "Doe"]
+            },
+            {
+                name:"Task 2",
+                description:"Description 2",
+                responsibles:["John", "Doe"]
+            },
+            {
+                name:"Task 3",
+                description:"Description 3",
+                responsibles:["John"]
+                
+            },
+            
+],
+        activeTab:false,
+        count:0,
+        renderingTime: "Click add rows",
+        time:0,
+        rowsToAdd:10
+      
+    });
+
+
+    // setInterval(()=>{
+
+    //     data.time = new Date().toTimeString()
+    // }, 1000)
+
+
+
+    console.log("data", data)
+    data.removeTask = (i, )=>{
+
+        data.tasks.splice(i, 1)
+      
+    }
+    data.increment = ()=>{
+        
+        data.count++
+    }
+
+    let arrays = Array.from(Array(1000)).map((r, i)=>"Task "+i)
+    data.addRows = (i)=>{
+        debugger
+        i = !isNaN(Number(i))? Number(i): i
+
+        if(typeof i =="number"){
+            data.tasks.splice(0, 0, ...Array.from(Array(i)).map((r, i)=>({
+                name:"Task "+i,
+                description:"Description 3",
+                responsibles:["John"]
+                
+            })) )
+
+            return
+        }
+        let start = new Date().getTime()
+         data.tasks.push(...arrays)
+            
+
+            nextTick(()=>{
+                data.renderingTime = new Date().getTime() - start
+                console.log(data.renderingTime, "renderingTime")
+                debugger
+            })
+
+    }
+    data.toggleTabs = ()=>{
+
+        data.activeTab = !data.activeTab
+    }
+    data.deleteTwo =(evt, i)=>{
+        data.tasks.push(...[data.input, data.input])
+    }
+    data.addTask = (evt, i)=>{
+
+        if(evt.key && evt.key !== "Enter") return
+        
+        data.tasks.push(...[data.input, data.input], 2,)
+      
+        data.input = ""
+
+        
+    }
+
+    createContext( data )
+
+
+</script>

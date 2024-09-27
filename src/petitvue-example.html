@@ -1,0 +1,224 @@
+
+<!-- <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script> -->
+<!-- <script src="//unpkg.com/alpinejs" defer></script> -->
+<!-- <script src="https://unpkg.com/petite-vue" defer init></script> -->
+
+<div id="example" >
+
+        <div @click="">
+            <h1>Example</h1>
+            <p >Example content {{input}}</p>
+
+        </div>
+
+        <div>
+
+            <h2>Code</h2> {{renderingTime}} ms  
+            <button  @click="addRows">Add 1000 rows </button>
+            
+            <input   v-model="rowsToAdd" type="text">
+            <button  @click="addRows(rowsToAdd)">Add 10 </button>
+
+            <h2>Tasks</h2>
+            <div  v-show="input">Imput empty</div>
+
+            V-bind here is not reactive, you need to use v-bind:style
+            <ul v-show="tasks"  v-bind:style="some.style">
+                {{some}}
+       
+                <div>some content</div>
+         
+                <template>
+                    hoala
+                </template>
+                <li v-for="task,i in tasks" v-bind:data-task-id="i"> 
+                    <!-- Here the same, data-task-id="{{i}}" is rendered, it need v-bind:data-some="{{i}}" -->
+                     {{task.name}}
+                    <div v-show="activeTab"  >
+
+                        Show tabsss
+                        {{i}}
+                 
+                  
+                        <button  @click="removeTask(i)">Add task</button>
+                     </div>
+                     <!-- <input  v-model="task.name" type="text"> -->
+                     <!-- <input  v-model="i" type="text"> -->
+
+                     <template v-loop="{{person,i in task.responsibles}}" >
+                        <li data-task-id="{{person}}""> {{person}}
+
+                       
+                          Hola carcola
+                           
+                       </li>
+    
+                   </template>
+                    
+                </li>
+
+             
+                <div>some content</div>
+
+             
+            </ul>
+
+            {{some}}
+            
+            {{tasks[0].name}}
+            <input  v-model="tasks[0].name" type="text">
+    
+            <input  onkeypress="addTask" value="{{input}}" type="text">
+
+            <input  v-model="some.style" type="text">
+
+            <input  v-model="some.some.some" type="text">
+        
+            <button  @click="addTask">Add task</button>
+           
+        
+    </div>
+
+
+    Task tabs
+   
+    <button @click="toggleTabs">Hide tabs     {{activeTab}}</button>
+
+
+    <button  v-if="activeTab" @click="increment">Hide tabs  {{count}}   {{activeTab}}</button>
+
+    {{activeTab}}
+
+
+
+    <!-- <div v-show="{{activeTab}}">
+
+       Show tabsss
+
+    </div>
+    <div v-reactive style="display:flex; flex-direction:row">
+       
+        <div v-loop="{{task in tasks}}" > 
+
+            <div  v-show="{{activeTab}}"  >
+
+                tab content {{activeTab}} {{task}}
+
+            </div>
+
+    </div>
+    </div> -->
+</div>
+<script type="module">
+// import functions ref, reactive, ...
+
+import {reactive, nextTick, createApp} from "https://unpkg.com/petite-vue?module";
+    // import {reactive , ref} from "/src/reactive-dom.js";
+
+    const attrs = reactive({
+            class:"some-class",
+            style:"color:red",
+            some:{}
+        })
+    const data = {
+  
+        input:"",
+     
+        some:attrs, 
+        code:`
+                console.log("the codeee is ehere", {some:"ada"})
+        `,
+        tasks:[ {
+                name:"Task 1",
+                description:"Description 1",
+                responsibles:["John", "Doe"]
+            },
+            {
+                name:"Task 2",
+                description:"Description 2",
+                responsibles:["John", "Doe"]
+            },
+            {
+                name:"Task 3",
+                description:"Description 3",
+                responsibles:["John"]
+                
+            },
+            
+            
+],
+        activeTab:false,
+        count:0,
+        renderingTime: "Click add rows",
+        time:0,
+        rowsToAdd:10
+      
+    }
+
+
+    // setInterval(()=>{
+
+    //     data.time = new Date().toTimeString()
+    // }, 1000)
+
+
+
+
+    data.removeTask = function(i, ){
+
+        this.tasks.splice(i, 1)
+      
+    }
+    data.increment = function(){
+
+        this.count++
+    }
+
+    let arrays = Array.from(Array(1000)).map((r, i)=>({name:"Task SS"+i}))
+    data.addRows = function(i){
+        debugger
+
+        if(typeof i =="number"){
+            this.tasks.splice(0, 0, ...Array.from(Array(i)).map((r, i)=>({
+                name:"Task "+i,
+                description:"Description 3",
+                responsibles:["John"]
+                
+            })) )
+
+            return
+        }
+        let start = new Date().getTime()
+         this.tasks.push(...arrays)
+            
+
+            nextTick(()=>{
+                this.renderingTime = new Date().getTime() - start
+                
+                debugger
+            })
+
+    }
+    data.toggleTabs = function(){
+
+        this.activeTab = !this.activeTab
+    }
+    data.deleteTwo =(evt, i)=>{
+        this.tasks.push(...[this.input, this.input])
+    }
+    data.addTask = (evt, i)=>{
+
+        if(evt.key && evt.key !== "Enter") return
+        
+        this.tasks.push(...[this.input, this.input], 2,)
+      
+        this.input = ""
+
+        
+    }
+
+    createApp(data).mount("#example")
+
+
+
+</script>

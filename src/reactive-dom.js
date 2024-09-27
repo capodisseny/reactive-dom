@@ -1,4 +1,3 @@
-// import { HybridWeakMap } from "./utils/HybridWeakMap.js"
 
 /**
  * 
@@ -6,217 +5,148 @@
  */
 
 
- const liElement = {
-    type: 'li',
-    children: [
-        {
-            type: 'text',
-            textContent:[{path:"i"}]
-        }, ' ',{
-            type: 'text',
-            textContent:[{path:"task"}]
-        },
-      {
-        type: 'div',
-        directives: { show: 'activeTab' },
-        children: [{
-            type: 'text',
-            textContent:["Showw tabss"]
-        }, ' ', {
-            type: 'text',
-            textContent:[{path:"i"}]
-        }]
-      },
-      {
-        type: 'div',
-        children: [
-          {
-            type: 'button',
-            attributes: {
-                 onclick: 'removeTask'
-             },
-
-            children: ['Remove ', {
-                type: 'text',
-                textContent:[{path:"task"}]
-            }]
-          },
-          {
-            type: 'div',
-            attributes: { 'show': 'activeTab' },
-            children: ['Show tabsss', ' ', {
-                type: 'text',
-                textContent:[{path:"i"}]
-            }],
-
-          }
-        ]
-      }
-    ]
-  };
-
  const prefix = "s-"
  const events = {
     // Mouse Events
-    onclick: { type: "MouseEvent" },
-    ondblclick: { type: "MouseEvent" },
-    onmousedown: { type: "MouseEvent" },
-    onmouseup: { type: "MouseEvent" },
-    onmousemove: { type: "MouseEvent" },
-    onmouseover: { type: "MouseEvent" },
-    onmouseout: { type: "MouseEvent" },
-    onmouseenter: { type: "MouseEvent" },
-    onmouseleave: { type: "MouseEvent" },
-    oncontextmenu: { type: "MouseEvent" },
+    onclick: true,
+    ondblclick: true,
+    onmousedown: true,
+    onmouseup: true,
+    onmousemove: true,
+    onmouseover: true,
+    onmouseout: true,
+    onmouseenter: true,
+    onmouseleave: true,
+    oncontextmenu: true,
   
     // Keyboard Events
-    onkeydown: { type: "KeyboardEvent" },
-    onkeyup: { type: "KeyboardEvent" },
-    onkeypress: { type: "KeyboardEvent" },
+    onkeydown: true,
+    onkeyup: true,
+    onkeypress: true,
   
     // Form Events
-    onchange: { type: "Event" },
-    onsubmit: { type: "Event" },
-    onreset: { type: "Event" },
-    oninput: { type: "InputEvent" },
-    oninvalid: { type: "Event" },
-    onselect: { type: "Event" },
+    onchange: true,
+    onsubmit: true,
+    onreset: true,
+    oninput: true,
+    oninvalid: true,
+    onselect: true,
   
     // Window Events
-    onload: { type: "Event" },
-    onunload: { type: "Event" },
-    onresize: { type: "UIEvent" },
-    onscroll: { type: "UIEvent" },
-    onbeforeunload: { type: "BeforeUnloadEvent" },
-    onhashchange: { type: "HashChangeEvent" },
-    onerror: { type: "ErrorEvent" },
+    onload: true,
+    onunload: true,
+    onresize: true,
+    onscroll: true,
+    onbeforeunload: true,
+    onhashchange: true,
+    onerror: true,
   
     // Document Events
-    onDOMContentLoaded: { type: "Event" },
-    onreadystatechange: { type: "Event" },
+    onDOMContentLoaded: true,
+    onreadystatechange: true,
   
     // Clipboard Events
-    oncopy: { type: "ClipboardEvent" },
-    oncut: { type: "ClipboardEvent" },
-    onpaste: { type: "ClipboardEvent" },
+    oncopy: true,
+    oncut: true,
+    onpaste: true,
   
     // Drag and Drop Events
-    ondrag: { type: "DragEvent" },
-    ondragstart: { type: "DragEvent" },
-    ondragend: { type: "DragEvent" },
-    ondragover: { type: "DragEvent" },
-    ondragenter: { type: "DragEvent" },
-    ondragleave: { type: "DragEvent" },
-    ondrop: { type: "DragEvent" },
+    ondrag: true,
+    ondragstart: true,
+    ondragend: true,
+    ondragover: true,
+    ondragenter: true,
+    ondragleave: true,
+    ondrop: true,
   
     // Media Events
-    onplay: { type: "Event" },
-    onpause: { type: "Event" },
-    onended: { type: "Event" },
-    ontimeupdate: { type: "Event" },
-    onvolumechange: { type: "Event" },
-    onseeked: { type: "Event" },
-    onseeking: { type: "Event" },
-    ondurationchange: { type: "Event" },
-    oncanplay: { type: "Event" },
-    oncanplaythrough: { type: "Event" },
+    onplay: true,
+    onpause: true,
+    onended: true,
+    ontimeupdate: true,
+    onvolumechange: true,
+    onseeked: true,
+    onseeking: true,
+    ondurationchange: true,
+    oncanplay: true,
+    oncanplaythrough: true,
   
     // Touch Events
-    ontouchstart: { type: "TouchEvent" },
-    ontouchend: { type: "TouchEvent" },
-    ontouchmove: { type: "TouchEvent" },
-    ontouchcancel: { type: "TouchEvent" },
+    ontouchstart: true,
+    ontouchend: true,
+    ontouchmove: true,
+    ontouchcancel: true,
   
     // Pointer Events
-    onpointerdown: { type: "PointerEvent" },
-    onpointerup: { type: "PointerEvent" },
-    onpointermove: { type: "PointerEvent" },
-    onpointerover: { type: "PointerEvent" },
-    onpointerout: { type: "PointerEvent" },
-    onpointerenter: { type: "PointerEvent" },
-    onpointerleave: { type: "PointerEvent" },
-    onpointercancel: { type: "PointerEvent" },
+    onpointerdown: true,
+    onpointerup: true,
+    onpointermove: true,
+    onpointerover: true,
+    onpointerout: true,
+    onpointerenter: true,
+    onpointerleave: true,
+    onpointercancel: true,
   
     // Focus Events
-    onfocus: { type: "FocusEvent" },
-    onblur: { type: "FocusEvent" },
-    onfocusin: { type: "FocusEvent" },
-    onfocusout: { type: "FocusEvent" },
+    onfocus: true,
+    onblur: true,
+    onfocusin: true,
+    onfocusout: true,
   
     // Device Events
-    ondeviceorientation: { type: "DeviceOrientationEvent" },
-    ondevicemotion: { type: "DeviceMotionEvent" },
+    ondeviceorientation: true,
+    ondevicemotion: true,
   
     // Miscellaneous Events
-    ontransitionend: { type: "TransitionEvent" },
-    onanimationstart: { type: "AnimationEvent" },
-    onanimationend: { type: "AnimationEvent" },
-    onanimationiteration: { type: "AnimationEvent" },
-    onmessage: { type: "MessageEvent" },
-    ononline: { type: "Event" },
-    onoffline: { type: "Event" },
-    onstorage: { type: "StorageEvent" }
+    ontransitionend: true,
+    onanimationstart: true,
+    onanimationend: true,
+    onanimationiteration: true,
+    onmessage: true,
+    ononline: true,
+    onoffline: true,
+    onstorage: true,
   };
 
-
- const manipulators = new WeakMap()
- function evaluateDynamic(str){
-
-
-    return  
-
- }
 
  const directives = {
     
 
-    bind: function({ node, value, data, ctx}){
-
-        let path = value
-        //watch the enetire result
-         watch(get(data, path),  ()=>{
-
-            let value = get(data, path)
+    bind: {
+        updateFunction(node, { oldValue, value}){
 
             if(typeof value === "object"){
-
+    
                 Object.entries(value).forEach(([key, value]) => {
                     
                     node.setAttribute(key, value)
                 });
             }
-        }, true);
 
-    },
-    show: function({node,nodeRef, data, value, ctx}){
+        },
 
-        if(ctx.isLoop){
-
-           
-   
-
-        } 
-
-        effect(()=>{
-
-            const args = get(data, value) ? [""]: ["none", "important"]
-
-            node.style.setProperty('display',...args);
- 
-         })
-   
         
     },
-    if({node,nodeRef, data, value, ctx}){
+    show: {
+   
+        updateFunction:(node, { value})=>{
 
+            const args = value ? [""]: ["none", "important"]
+             node.style.setProperty('display',...args);
+            // return {
+            //     style: {display: args}
+            // }
+            
+        },
+       
+    },
 
-        effect(()=>{
+    if:{
 
-            let show = get(data, value)
-
+        updateFunction(node, { value}){
             let ref = nodeRef.commentRef = nodeRef.commentRef || document.createComment("if")
-
-            if(show){
+    
+            if(value){
                 
                 if(node.parentNode) return
                 ref.replaceWith(node)
@@ -226,228 +156,319 @@
                 node.replaceWith(ref)
                 
             }
-
-        }, true)
-        
+        },
+       
     },
+
 
     //loop first to pass the apropiate data to the children
-    loop: function({node,nodeRef,data, value }){
+    loop: {
+
+        //set deep to one to avoid nested updates
+        deep:1,
+        resolveExpression(expression){
+            //[m,loopKey, loopIndex,  path]
+            return expression.match(/([a-zA-Z]+)(?:\s*,\s*([a-zA-Z]+))?\s+in\s+([a-zA-Z.]+)/).slice(1)
+        },
+        getValue({expression}, data){
+
+            let [ loopKey, loopIndex, path ] = expression
+
+            return get(data, path)
         
-        let expression = value
-
-
-        const [m,loopKey, loopIndex,  path] = expression.match(/([a-zA-Z]+)(?:\s*,\s*([a-zA-Z]+))?\s+in\s+([a-zA-Z]+)/)
-    
-        let loop = get(data, path)
-        const startRef = document.createComment('Start Loop');
-        const endRef = document.createComment('End Loop');
-
-        const cleanRef = document.createComment('Clean Loop');
-        
-
-        let isTemplate = node.tagName == "TEMPLATE"
-
-        //is is an element instead of a template
-        if(!isTemplate){
-            // let ref =  document.createTextNode("")
-            let newTemplate = document.createElement("template")
-            // let newTemplate = document.createDocumentFragment()
-
-            newTemplate.setAttribute("s-loop", node.getAttribute("s-loop"))
+        },
  
-            //remove s-llop to avoid inifinite loop
-            node.removeAttribute("s-loop")
-            node.after(newTemplate)
-            newTemplate.content.appendChild(node)
+        createChildContext({path, obj,ctx, loopKey, loopIndex}){
+            return {data:new Proxy(ctx.data, {
+                get(target, prop){
 
-            node = newTemplate
-
-        }
-
-      
-        
-        const parentNode = node.parentNode
-        //remove template
-        // node.replaceWith(startRef, endRef)
-        node.before(cleanRef, endRef)
-
-        let template = node.content
-
-        //compile template nodes because here are not compiled yet
-        //use the document fragment, since the template is already compiled and will not compile children
-        //  compileNodes(template)
-
-        //  node.remove()
-
-        let lastRef = startRef
-
-        let loopValues = []
-        let lastIndex = -1
-        const removeIndexes = []
-        const addIndexes = []
-
-
-        watch(loop, ({type, target, key,value, updateId, oldValue})=>{
-    
-
-
-            if(type == "delete") removeIndexes.push(key)
-            if(type == "set") addIndexes.push([key,value] )
-
-
-            if(Array.isArray(target) && key !== "length") return 
-           
-            console.log(key, value)
-            const initialization = !target
-
-            const newUpdate = document.createDocumentFragment()
-
-                // new WeakMap()
-                let currentIndex = 0
-                //an array of loop values that needs to be removed, initially all and remove the ones still there
-                const deleteIndex = Object.keys(loopValues)
-
-                let loopKeys = Object.keys(loop)
-            
-                console.time("loop")
-
-                const updateContext = []
-                loopKeys.forEach((key)=>{
-
-                    deleteIndex.shift()
-                    loopKeys
-                    loop
-           
-                    const loopValue = loopValues[currentIndex] = loopValues[currentIndex] || { __loopValue:true, nodes:[]}                
-            
-                    const item = loop[key]
-                    //save value to check if needs to update
-                    const needUpdate =  loopValue.hasOwnProperty("value")?(loopValue.value != item):false
-                    loopValue.value = item
-                
-                    
-                    // let childData ={...manipulator.ctx.data, [loopKey]:item, [loopIndex]:currentIndex}
-                    let childData = Object.setPrototypeOf({ [loopKey]:item, [loopIndex]:currentIndex},data)
-                    let childCtx = {data: reactive(childData), isLoop:true}
-
-                    if(lastIndex < currentIndex || needUpdate) {
-                
-                        //clean old value 
-                        if(needUpdate && loopValue.nodes.length){
-                            loopValue.nodes.forEach(node=>node.remove())
-                            loopValue.nodes = []
-                        }
-            
-                   
-                        // const fragmentClone = cloneNode(template)
-                        //append new nodes
-                        let i = 0
-                        template.childNodes.forEach((child, i)=>{
-                            //this is x2 faster than a lconeWithRef
-                            //so clone it like this and find a way to find the ref
-                                //   let newChild =  child.cloneNode(true)
-                            //fastests way
-                                let newChild = cloneDeep(child, (node, ref)=>{
-                                    updateWithRef(node,  ref,childCtx)
-                                })
-                            //  const newChild = cloneWithRef(child)
-                                // if(i > 0) return
-                                // i++
-                                // let newChild =renderObject(liElement)
-                            //    debugger
-                            //   const newChild = initializeWithTemplate( child , childCtx)
-                            //  const newChild = updateWithRef(fragmentClone.childNodes[i], childCtx)
-                       
-                            lastRef = newChild
-
-                            newUpdate.appendChild(newChild)
-                            // updateContext.push([newChild, childCtx])
-
-
-                            loopValue.nodes.push(newChild)
-                           
-        
-                            if(!isTemplate)debugger
-
-                        })
-                        // endRef.parentNode.insertBefore(cleanRef, endRef)
-
-                    
-                    //update last index
-                        lastIndex = currentIndex
+                    if(prop == loopIndex){
+                         return obj.key
+                    }
+                    if(prop == loopKey){
                         
-                    } 
+                        const key = obj.key
+                        
+                        const v =  get(target, `${path}.${key}`)
 
-                    //update the clean 
+                        return v
+                    }
+                    return Reflect.get(target,prop)
 
-                    currentIndex++
-                                
+                },
+        
+                set(target, prop, v){
+                    if(prop == loopIndex){
+                        return true
+                    }
+                    if(prop == loopKey){
+      
+                        return set(target, `${path}.${obj.key}`, v)
+                       
+                    }
+                    return Reflect.set(target,prop, v)
+                }
+            }), isLoop:true}
+        },
+        updateFunction(node, update, {expression, helper} , ctx){
 
-                })
+            const {type, target, key,value, updateId, oldValue} = update
+    
+            const  [ loopKey, loopIndex , path] = expression 
+            const items = value
+   
+            const createFragment = (holders, oldFragment)=>{
+                const holder = document.createElement("div")
+                holders.push(holder)
+                if(oldFragment) holder.append(...oldFragment.childNodes)
+                return holder
+            }
+            let template = helper.node.content
 
+            if(!node.parentNode)debugger
 
+            if(!items) return 
+            
+            
+            const nodeObj = this.getNodeObject(node)  
+            const last = nodeObj.lastLoop ||[]
+             console.time("Comparison")
+            const comparison = compare( items,last)
 
-           
-                // //remove old values
-                // while(cleanRef.nextSibling != endRef){
-                //     cleanRef.nextSibling.remove()
-                // }
+            const jobs = comparison.jobs
+             console.timeEnd("Comparison")
 
+             const oneJob = jobs.length == 1?jobs[0]:false
 
-                // //clean old loop values
-                // deleteIndex.forEach(i => {
-                //         loopValues[i].nodes.forEach(node=>node.remove())
-                // });
+             if(oneJob =="keep") return
 
-                // updateContext.forEach(([node, childCtx])=>{
+             //TODO: UPDATE NODES EACH TIME to overwrite the context
+             // just update new nodes
+             // remove old nodes
+             // advantatges:
+                // no need of references and other staff like loopNodes, etc
+             //TODO: SELECTIVE UPDATE
+             // try to find way to add the nodes in the corresponding position
+             //cons: 
+                //the unique con of this is that I need to manipulate the DOM
+                //but maybe there is no such operations where there differents indexes...
+                // the most comomn is splice which will delete and add lists of nodes so == one reflow
+   
 
-                //     updateWithRef(node, childCtx)
+             const loopNodes = nodeObj.loopValues = nodeObj.loopValues || new Map()
+            // let loopNodes = nodeObj.loopValues = nodeObj.loopValues || []
+                 //clean deleted refences
+            // loopNodes = loopNodes.filter(v=>v)
+            const newUpdate = []
+
+            const holders = []
+            const inLoop = ctx.isLoop
+            const sameLength = ( comparison.toAdd.length == comparison.toRemove.length  
+                && !comparison.toReposition.length 
+              );
+       
+            //skip update when the length is the same and all the values are the same type
+            if(sameLength && comparison.types.length == 1 && comparison.types[0] != "object") return
+            const afterUpdate = []
+            comparison.toKeep.forEach(([key, item], index)=>{
+
+                const obj = loopNodes.get(key)
+
+                if(!obj)debugger
+                const newObj = inLoop ? createFragment(holders):document.createDocumentFragment()
+                newObj.append(...obj.nodes)
+
+                newUpdate[key] = newObj
 
             
-                // })
+             })
+
+            
+             console.log("UPDATE LOOP", {comparison, loopNodes, items})
+            //remove old
+            comparison.toRemove.forEach(([key, item], index)=>{
 
 
+                //string udpate 
+                if(sameLength && typeof item !== "object" &&  typeof item == typeof comparison.toAdd[index][1]){
+                    return
+                 }
+
+                const obj = loopNodes.get(key)
+               
+
+                //delete on next, so i have access on the same update
+                 afterUpdate.push(()=> loopNodes.delete(key))
+            
+
+                if(!obj) debugger
+
+                obj.nodes.forEach(node=>node.remove())
+
+             })
+
+
+            //  if(!jobs.includes("add")) {
+
+            //     Object.entries(items).forEach(([key, item])=>{
+            //          const obj = loopNodes.get(key)
+            //         const childCtx = this.createChildContext({path, obj,ctx, loopKey, loopIndex})
+                    
+            //         obj.nodes.forEach(node=>updateNode(node, childCtx))
+            //     })
+            //     console.log("only removed")
+
+            //     afterUpdate.forEach(fn=>fn())
+            //     return
+            //  } 
+            
+            //update position
+             comparison.toReposition.forEach(([key, item, oldKey], index)=>{
+
+                
+                const obj = loopNodes.get(oldKey)
+    
+                afterUpdate.push(()=> loopNodes.set(key, obj))
+ 
+                const newObj = inLoop ? createFragment(holders):document.createDocumentFragment()
+
+                if(!obj)debugger
+                newObj.append(...obj.nodes)
+
+                obj.key = key
+                //update for the index....
+                  updateNode(newObj, obj.ctx)
+                  
+               
+                newUpdate[key] = newObj
+             })
+
+
+             //add new
+             comparison.toAdd.forEach(([key, item], index)=>{
+                
+                 //string udpate 
+                if(sameLength && typeof item !== "object" &&  typeof item == typeof comparison.toRemove[index][1]){
+                    //update only the first element
+
+                    console.log("stringupdate", item , key, )
+                    const obj = loopNodes.get(comparison.toRemove[index][0])
+                    //update the object
+                    afterUpdate.push(()=> loopNodes.set(key, obj))
+                    const newObj = inLoop ? createFragment(holders):document.createDocumentFragment()
+
+                    newObj.append(...obj.nodes)
+                    obj.key = key
+                    obj.item = item
+
+                
+                    newUpdate[key] = newObj
+                    
+
+                    return 
+
+                }
+                //set obj before update 
+                const obj = { key, item}
+                const childCtx = this.createChildContext({path, obj,ctx, loopKey, loopIndex})
         
-                endRef.before(newUpdate)
+          
+                afterUpdate.push(()=> loopNodes.set(key, obj))
+               
+                obj.ctx = childCtx
 
+
+                // faster 100ms //without console around 55ms
+                  let newNode = template.cloneNode(true)
+                  template.childNodes.forEach((child, i)=>{
+                        parallelUpdate(child, newNode.childNodes[i], childCtx)
+                        //i don't know why if I register and run it on the queue 
+                        //doesn't trigger the update on {{task.name}}
+                    //   registerNodeUpdate(child, newNode.childNodes[i], childCtx)
+                  })
+
+    
                  
-                // const walker = document.createTreeWalker(endRef.parentNode, NodeFilter.SHOW_ALL);
+                  //slower: from 100ms to 130ms //without console aroudn 65ms
+                // let newNode = cloneDeep(template, (node, ref, )=>{
+            
+                //     if(node.tagName == "TEMPLATE")debugger
+                //     if(!ref) return   
+                //      ref.runNodeUpdates(node, childCtx)
+        
+                // }, )
+        
+                if(ctx.isLoop && newNode.nodeType == 11){
+                
+                    newNode = createFragment(holders, newNode)
+                }
+
+
+                obj.nodes = [...newNode.childNodes]
+          
+                newUpdate[key] = newNode
 
                
-                console.timeEnd("loop")
-                // updateNodes(parentNode.childNodes)
+               
+             })
+
+
+             //do local updates
+             afterUpdate.forEach(fn=>fn())
+
+             //check duplicated
+            //  nextTick(()=>{
+            //     const duplicated = [...loopNodes.values()].reduce((c,v, i, a)=>a.indexOf(v) !== i?c.concat(v):c, [])
+            //     if(duplicated.length){
+            //         debugger
+            //     }
+            //  })
+
+
+             if(items.length != newUpdate.length) debugger
+
+            //  debugger
+            // newUpdate = newUpdate.filter(v=>v)
+
+            if(node.__inTemplate)debugger
+
+            updateQueue()
+
+              requestAnimationFrame(()=>{
+                node.before(...newUpdate)
+              })
+          
+
+
+            holders.forEach(holder=>holder.replaceWith(...holder.childNodes))
+
+            nodeObj.lastLoop = [...items]
+
+            return 
+
+
             
-                // manipulator.children = children
-   
-            
-        }, true)
-    },
+        },
+        
+
+    }
+    
     
 }
  
 
-const directiveSelectors = Object.keys(directives).map(v=>`s-${v}`)
-class ContextHandler{
-    constructor(){
-        this.data = {}
-        this.context = {}
-    }
-    get(target){
-        return target.data[key] || target.context[key]
-    }
-    set(){
-       
-    }
-}
+window.createContext = createContext
+window.reactive = reactive
+window.watch = watch
+window.nextTick = nextTick
 
-  function createContext(...ids){
+function createContext(data, root){
 
   
-    let root = getPrevious() || document.body
+     root = root || getPrevious() || document.body
 
  
-    let data = ids.at(-1) 
+
     if(typeof data === "string") {
         data = reactive({})
     }
@@ -458,69 +479,127 @@ class ContextHandler{
     }
 
     console.time("Compilation")
-     let compiled = compileNodes(root,  ctx, 
-        // initializeNode
-     )
-    
-    
+    //  let compiled = compileNodes(root,  ctx )
+     let compiled = compileHelpers(root )
 
      console.timeEnd("Compilation")
 
      console.log("compiled", compiled)
 
 
-     initializeNodes(ctx)
+      runUpdates(ctx)
+    //  initializeNodes(ctx)
      
      return {}
 }
 
 
 
-    const proxies = {
-        reactive: new WeakMap()
-    }
+const proxies = {
+    reactive: new WeakMap()
+}
 
+const isProxyFlag = Symbol('__isProxy');
 
+function isReactive(obj){
+    if(!obj) return false
+    // if(typeof obj !== "object") return false
+    // console.log(obj)
+    //  return obj.__raw ? true: false
+     return obj?.__isReactive
 
+}
+const interceptors = {
 
-  function reactive(obj, watcher, origin){
+    //chat gpt solution for check proxies with prototypes
+    //IMPORTANT: do not delete this
+     // Intercept and return `false` for the `hasOwnProperty` check on the flag
+    //  hasOwnProperty:{
+    //     get(target, key, value, receiver){
 
-   let current =  proxies.reactive.get(obj)
-
-   if(current ) return current
-
-   let handler =   new ReactiveHandler({target:obj, origin:origin || obj, watcher})
-   let proxy =  new Proxy(obj, handler)
-
-   proxies.reactive.set(obj,proxy)
-
-    return proxy
- } 
-
- const interceptors = {
+    //         if (prop === 'hasOwnProperty') {
+    //             return (key) => key !== isProxyFlag;
+    //           }
+    //           return Reflect.get(target, key, receiver);
+    //     }
+    //  },
+     
+      
+    //   [isProxyFlag]:{
+    //         get(target, key){
+    //               // Intercept access to the symbol-based flag
+    //             if (prop === isProxyFlag) {
+    //                 return true;  // Indicate that this object is proxied
+    //             }
+    //             return Reflect.get(target, key, receiver);
+    //         }
+    //   },
 
     __isReactive:{
-        get(){
-            return true
+
+        get(target, key, value, reciever){
+            
+    
+            return this.proxy == reciever
+
+            return reciever == this.target
         },
 
     },
+    __raw:{
+        get(target){
+            // console.log("the targettt", target)
+            return target
+            return this.target
+        }
+    },
+    
     __setEffect:{
         set(target, key, value){
-
+           
+            if(this.effects.has(value)) return  true
+            
             this.effects.add(value)
 
+      
             return true
         }
     }
   
  }
  
+
+
+function reactive(obj, callbacks = [],  parents, origin){
+
+    if(typeof obj !== "object") return obj
+
+    if(isReactive(obj)) return obj
+
+    let current =  proxies.reactive.get(obj)
+
+    if(current ) {
+            return current
+    }
+
+    let handler =   new ReactiveHandler({target:obj, parents, origin:origin || obj,callbacks })
+    let proxy =  new Proxy(obj, handler)
+
+    handler.proxy = proxy
+    proxies.reactive.set(obj,proxy)
+
+        return proxy
+ } 
+
+
+  const effectStack = []
  class ReactiveHandler{
 
+    
     static handlers = []
-
+    
     static queue = []
+    static handlersByObject = new WeakMap()
     constructor(options = {}){
 
         this.effects = new Set()
@@ -531,6 +610,62 @@ class ContextHandler{
         this.target = options.target
 
         this.queue = []
+
+        this.parents = []
+
+        this.deepEffects  = new Set()
+
+        // Effect.eventTarget.addEventListener("deepEffect", (e)=>{
+        //     console.log("deep", e.detail)
+        // })
+
+        // this.callbacks = options.callbacks 
+        
+        if(options.callbacks){
+            this.addDeepEffect(options.callbacks)
+        }
+        if(options.parents) this.parents.push(...options.parents)
+        
+
+        this.constructor.handlersByObject.set(this.target, this)
+    }
+
+
+    addDeepEffect(deepEffect){
+        
+
+        const deepEffects = this.deepEffects
+        if(typeof deepEffect  == "function" || deepEffect instanceof Effect){
+        
+            deepEffects.add(deepEffect)
+
+        }
+        else if(Array.isArray(deepEffect) ){
+            deepEffects.forEach(effect=>{
+                this.addDeepEffect(effect)
+            })
+           
+        }
+        else{
+            console.warn("deepEffects must be an array, a function or an Effect")
+        }
+    }
+
+    static get currentEffect(){
+        return effectStack.at(-1)
+     }
+     static set currentEffect(v){
+         if(v){
+             effectStack.push(v)
+         }else{
+             effectStack.pop()
+         }
+         return true
+      }
+
+    static getHandler(obj){
+
+       return  this.handlersByObject.get(obj)
     }
 
     addEffect(effect, key, target){
@@ -546,34 +681,47 @@ class ContextHandler{
     
     get(target, key, reciever){
 
-        let value = target[key]
+         let value = target[key]
+        // let value = Reflect.get(target, key)
 
         if(interceptors[key]?.["get"]){
             return interceptors[key]["get"].call(this,target, key, value, reciever )
         }
 
+
+
         //trigger get
         const currentEffect = this.constructor.currentEffect
-        if( currentEffect){
 
-                this.addEffect(currentEffect, key)
+
+        // if(Array.isArray(target) && target.length == 3) debugger
+        if( currentEffect){
+                // if(key == "style" &&  this.origin.attrs)debugger
+             this.addEffect(currentEffect, key)
+            // this.addDeepEffect(currentEffect)
 
         }   
 
-        if(value instanceof ContextValue){
-
-            return value.get(target, key)
-        }
-
-
+    
         if(typeof value === "object"){
-            return reactive(value, false, this.origin )
+            return reactive(value, false, [this, ...this.parents] ,this.origin )
         }
 
+   
+
+       
+        if(Array.isArray(target) ){
+
+            // return handleArrayFunctions(key, target, value, this)
+
+        }
 
         
         return value
     }
+
+    
+      
 
 
     // apply(target, thisArg, args){
@@ -585,68 +733,124 @@ class ContextHandler{
        
 
         if(interceptors[key]?.["set"]){
-            return interceptors[key]["set"].call(this,target, key, value, reciever )
+            return interceptors[key]["set"].call(this,target, key, value, reciever,  )
         }
+
+
+        let oldKey 
 
         const oldValue = target[key]
 
-        target[key] = value
+        if(Array.isArray(target)){
+        
+            // if (key === 'length') {
+            //     // Handle changes to the array's length, especially when removing elements
+            //     updateViewCallback('lengthChange', target);
+            // }
+              
+            //   // Handle direct changes to array elements (e.g., arr[2] = 'new value')
+            //   const oldValue = target[key];
+            //   target[key] = value;
+            // if (oldValue !== value) {
+            //     updateViewCallback('elementChange', target, key);
+            // }
 
-        // if(Array.isArray(target) && key == "length") return true
 
-        this.queueMutation({type:"set", target, key, value, oldValue})
+         
+            // if(Array.isArray(target)){
+            //   oldKey = target.indexOf(oldValue)
+            // }
+
+            // debugger
+
+          
+        }
+
+
+        // Reflect.set(target, key, value)
+         target[key] = value
+
+        //has no much difference on performance
+        //    if(Array.isArray(target) && key !== "length") return true
+
+      
+        this.queueMutation({type:"set", target, key,oldKey, value, oldValue, origin:this.origin})
         
         return true
     }
     deleteProperty(target, key) {
-        if (prop in target) {
+        if (key in target) {
 
-          delete target[prop];
+            
+            
+            const oldValue = target[key]
+            let oldKey 
+            if(Array.isArray(target)){
+              oldKey = target.indexOf(oldValue)
+            }
+
+          delete target[key];
 
 
-          this.queueMutation( {type: "delete", target, key} )
+          this.queueMutation( {type: "delete",value:target[key],oldKey, target, key,oldValue,  origin:this.origin} )
+
+          return true
           // Expected output: "property removed: texture"
         }
       }      
 
     triggerUpdate(){
 
+      //handler deep effects
+
+      console.log("updattee", this)
+         const eventTarget = Effect.eventTarget
+        const event = new CustomEvent("deepEffect", {detail:{
+            handler:this,
+            target:this.target, 
+            parents:[this, ...this.parents]
+            }})
+            eventTarget.dispatchEvent(event)
+    
+
+       //handle effect
         this.effects.forEach(effect=>{
 
-            const observingProps = effect.observing.get( this)
 
-            //if no observing props, a no target, skip update
-            if(!observingProps && !effect.observeTarget) return
+            //skip effects already ran
+            if(effect.ran) return
+            if(typeof effect == "function"){
+        
+                 effect(this.nextUpdate)
+                 effect.ran = true
+                 nextTick(()=>effect.ran = false)
 
-            //loop updated payloads
-            Object.keys(this.nextUpdate).forEach((key)=>{
+            }
 
-                //observe all properties
-                if(effect.observeTarget) {
-                    effect.runUpdate(this.nextUpdate[key])   
-                }
-                //observe specific properties
-                else if(observingProps[key]){
-                     effect.runUpdate(this.nextUpdate[key])
-                }
-            })
+    
+            effect.updateWithHandler(this)
+           
             
         })
        
-        this.nextUpate = {}
+        this.nextUpate = false
     }
 
-    static runUpdate(){
+    static runUpdates(){
 
-        this.queue.forEach((reactiveHandler )=> {
+        // console.log(":::::RRRRunning update")
+        // this.queue.forEach((reactiveHandler )=> {
+        //     reactiveHandler.triggerUpdate()
+        // })
+        // this.queue.length = 0
+
+
+        while(this.queue.length) {
+            const reactiveHandler =  this.queue.shift()
             reactiveHandler.triggerUpdate()
-        })
-
-        this.queue.length = 0
-
-      
-
-        this.update = false
+        }
+ 
+        this.updating = false
 
          Manager.runNextTick()
     }
@@ -658,28 +862,43 @@ class ContextHandler{
         //push mutation to the queue
         ReactiveHandler.queue.includes(this) ||  ReactiveHandler.queue.push(this)
 
+
         //prepare set properties changes in this object
         this.nextUpdate = this.nextUpdate || {}
 
+        // if(Array.isArray(payload.target))debugger
         //save payload in an object, so last value update is triggered only
         this.nextUpdate[payload.key] = payload
 
-        if(!ReactiveHandler.update){
-            ReactiveHandler.update = true
-            console.log("collection")
+        if(!ReactiveHandler.updating){
+            ReactiveHandler.updating = true
+        
             console.time("Collect updates")
-            requestAnimationFrame(()=>{
+            // console.trace();
+
+            // ReactiveHandler.runUpdate()
+            // (async ()=>{
+
+            //     ReactiveHandler.runUpdate()
+            // })(window)
+            //  requestAnimationFrame(()=>{
+            //     // console.log("tringgering update")
+            //     console.timeEnd("Collect updates")
+              
+            //     ReactiveHandler.runUpdates()
+            //   })
+
+              Promise.resolve().then(()=>{
+
+
+                console.log("tringgering update")
                 console.timeEnd("Collect updates")
-                console.log("last udpate")
-                ReactiveHandler.runUpdate()
-                
-            })
+              
+                ReactiveHandler.runUpdates()
+              })
          
         }
     }
-
-
- 
 
 
  }
@@ -706,7 +925,6 @@ class ContextHandler{
  function effect(callback, options){
 
     options = {
-        
         ...(options||{})
     }
      new Effect(callback, options)
@@ -720,14 +938,67 @@ class ContextHandler{
     onTrigger = false
     handler = false
     immediate = true
+    deep = false
+
+    static eventTarget = new EventTarget()
+    static observingTarget = new WeakMap()
+
+    static _ = (()=>{
+
+        //Deep or one level target observing
+        this.eventTarget.addEventListener("deepEffect", (e)=>{
+
+            const data = e.detail
+            const {target, parents, handler} = data
+
+        // console.log("running deep effect", data)
+            let deep = 0
+            parents.forEach(parent=>{
+                deep++
+                parent.deepEffects.forEach(effect=>{
+                    if(typeof effect == "function"){
+
+                        effect(handler.nextUpdate)
+                        return 
+                    }
+                    if(!effect.deep) return
+                    if(effect.deep !== true && deep > effect.deep) return
+               
+                    effect.updateWithHandler(handler, true)
+                })
+            })
+       
+        })
+    })()
+
+    // static getTargetObservers(target){
+
+    //     return this.observingTarget.get(toRaw(target))
+    // }
+    static setTargetObserver(effect, target){
+
+        target = toRaw(target)
+        // let observers = this.observingTarget.get(target)
+
+       let handler =  ReactiveHandler.getHandler(target)
+
+       if(effect.deep){
+
+            handler.addDeepEffect(effect)
+       }
+      
+  
+    }
     constructor(source, options){
 
-        const props = ["immediate", "callback",  "onTrigger"]
+        const props = ["immediate", "callback",  "onTrigger", "deep", "updater"]
 
         this.source = source
 
         if(typeof source == "object"){
-            this.observeTarget = source
+
+            this.deep = 1
+            Effect.setTargetObserver(this, source)
         }
 
         props.forEach(prop=>{
@@ -747,6 +1018,9 @@ class ContextHandler{
             this.callback.call(undefined, {value})
         }
 
+
+
+
         this.nextUpate = {}
 
     }
@@ -754,37 +1028,65 @@ class ContextHandler{
 
     runEffect(payload, handler){
 
+        if(this.ran)return
+
+
         let source = this.source
+
+        let value 
+
+     
         ReactiveHandler.currentEffect = this
 
-        let value
         if(typeof source == "function") value = source(payload, handler)
 
-       if(typeof source == "object"){
-            source.__setEffect = this
+        this.lastValue = value
+         
+        //observe result object
+       if(this.deep && isReactive(value)){
+
+    
+            Effect.setTargetObserver(this, value)
        }
 
+    
        ReactiveHandler.currentEffect = false
 
+       if(this.callback ){
+            this.callback.call(undefined, payload)
+        }
+       this.ran = true
+
+       nextTick(()=>{
+            this.ran = false
+        })
        return value
 
     }
-    runUpdate(payload, handler){
+    updateWithHandler( handler, deep){
+        if(this.ran)return
+        
+        const observingProps = this.observing.get( handler)
 
-        this.runEffect(payload, handler)
+        if(!observingProps && !deep)return
 
-        if(this.callback){
-            this.callback.call(undefined, payload)
+        //if no observing props, a no target, skip update
+        if(observingProps ) {
+            //loop updated payloads
+            Object.keys(observingProps).forEach((key)=>{
+                if(!handler.nextUpdate.hasOwnProperty(key)) return
+                this.runEffect(handler.nextUpdate[key], handler)
+            })
+
         }
+
+        if(deep && this.deep) this.runEffect(handler.nextUpdate, handler)
+
+           
     }
 
-    onTrack(e) {
-        debugger
-    }
-    onTrigger(e) {
-    debugger
-    }
-
+  
+   
     observeProp(reactiveHandler, prop){
 
         let observing = this.observing.get(reactiveHandler) 
@@ -800,86 +1102,30 @@ class ContextHandler{
 
 
 
- function watch(source, callback, run ){
+ function watch(source, callback, runOrOption ){
 
-    let options = {callback, immediate: run || false}
-    let t = typeof source 
-    if(t === "function"){
-
-
+    const run = typeof runOrOption === "boolean" ? runOrOption : false
+   
+    
+    const options = {
+        callback, immediate: run,
+        ...(runOrOption ||{})
     }
+    let t = typeof source 
 
-    if(t !== "object" && t !== "function")return 
+
+    if(t !== "object" && t !== "function"){
+
+        console.warn("watch source must be an object or a function")
+        return
+    } 
     
 
     effect(source, options)
     
-  
     
  }
 
-
- class ContextValue{
-
-    constructor(options = {}){
-     
-        this.data = options.data
-        this.path = options.path
-    }
-
-    path = ""
-    get(){
-        debugger
-        get(this.data, this.path) 
-    }
-
-    set(value){
-        debugger
-        this.value = value
-    }
-
- }
-
-
-
-
-
-function updateAttrs(node,  nodeRef, ctx){
-        
-        const attrs = nodeRef.attrs
-
-        Object.keys(attrs).forEach(key => {
-
-            let val = get(ctx.data, attrs[key])
-
-            if(!val && key !== "value") return node.removeAttribute(key)
-
-            node.setAttribute(key, val)
-            node[key] = val
-
-   
-        });
-
-
-        if(nodeRef.setInputEvent !== false && attrs.value){
-            
-            node.addEventListener("input", (e)=>{
-          
-                set(ctx.data, attrs.value , e.target.value)  
-    
-            })
-
-            nodeRef.setInputEvent = false
-        }
-        
-}
-
-
-
-
-
-
-    
 
 
 
@@ -906,17 +1152,31 @@ function updateAttrs(node,  nodeRef, ctx){
         static isRendering = false
         static runNextTick(){
 
-     
-            // Execute all the queued callbacks
-            while ( Manager.nextTickQueue.length) {
-                const callback = Manager.nextTickQueue.shift();
-                callback();  // Run the callback
-            }
+            if(this.isRendering ) {
+                // setTimeout(()=>this.runNextTick(), 0)
+              
+                // requestAnimationFrame(()=>{
+                //     this.runNextTick()
+                // })
+                 return
+            } 
+            this.isRendering = true;
 
-            // Mark rendering as done, so further nextTicks can be scheduled
-            this.isRendering = false;
 
-     
+            // const queue = [...Manager.nextTickQueue]
+            const queue = Manager.nextTickQueue
+             // Execute all the queued callbacks
+             //this makes inputs be able to focus on the nextTick
+             //this doesn't affect the real time of renderization
+             requestAnimationFrame(()=>{
+                while ( queue.length) {
+                    const callback = queue.shift();
+                    callback();  // Run the callback
+                }
+                 // Mark rendering as done, so further nextTicks can be scheduled
+                 this.isRendering = false;
+              })
+
         }
        
 
@@ -928,16 +1188,8 @@ function updateAttrs(node,  nodeRef, ctx){
             
         Manager.nextTickQueue.push(callback)
 
-         // Only schedule a queue flush if it's not already in progress
-        if (!Manager.isRendering) {
-            Manager.isRendering = true;
-            // Use setTimeout, requestAnimationFrame, or similar to flush the queue in the next event loop
-            // setTimeout(() => {
-            //     Manager.runNextTick();
-            // }, 0);
-        }
-
-        debugger
+      
+ 
     }
 
 
@@ -981,71 +1233,7 @@ function updateAttrs(node,  nodeRef, ctx){
     }
 
 
-    function queryNodeByText(text) {
-        // Get all elements in the document
-        const allElements = document.querySelectorAll('*');
-      
-        // Filter elements by their text content
-        const matchingElements = Array.from(allElements).find(element =>
-          element.textContent.includes(text)
-        );
-      
-        return matchingElements; // Return an array of matching elements
-      }
 
-
-
-      //in theory is mor efficient said chatgpt but doesn't look like it
-      //console.time(1);queryNodesByText("{{some.prop}}"); console.timeEnd(1) //0.08
-        //console.time(2);queryNodesByTextXPath("{{some.prop}}"); console.timeEnd(2) //0.36
-      function queryNodesByTextXPath(text) {
-        // Construct the XPath expression to match any node containing the specified text
-        const xpathExpression = `//*[contains(text(), '${text}')]`;
-        const matchingNodes = [];
-        
-        // Use `document.evaluate` to find nodes matching the expression
-        const iterator = document.evaluate(xpathExpression, document, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null);
-        let currentNode = iterator.iterateNext();
-        
-        // Iterate through the result set and collect matching nodes
-        while (currentNode) {
-          matchingNodes.push(currentNode);
-          currentNode = iterator.iterateNext();
-        }
-        
-        return matchingNodes;
-      }
-      
-
-
-      function findDeepestNodeByText(root, text) {
-        let deepestNode = null;
-        let maxDepth = -1;
-      
-        // Helper function to perform Depth-First Search (DFS)
-        function dfs(node, depth) {
-          // If the current node contains the specified text
-          if (node.textContent.includes(text)) {
-            // Check if this is the deepest node found so far
-            if (depth > maxDepth) {
-              maxDepth = depth;
-              deepestNode = node;
-            }
-          }
-      
-          // Recursively traverse child nodes
-          node.childNodes.forEach(child => {
-            if (child.nodeType === Node.ELEMENT_NODE) {
-              dfs(child, depth + 1); // Increase depth when moving to a child node
-            }
-          });
-        }
-      
-        // Start DFS from the root element with depth 0
-        dfs(root, 0);
-      
-        return deepestNode;
-      }
 
 
 
@@ -1060,157 +1248,6 @@ function updateAttrs(node,  nodeRef, ctx){
       }
 
       
-     
-
-
-
-
- function getNodeIndex(node) {
-    let index = 0;
-    while ((node = node.previousElementSibling) !== null) {
-      index++;
-    }
-    return index;
-  }
-
-
-
-//   const  parseNode = (node, context, updateId)=>{
-
-//     if ( node.nodeType == node.TEXT_NODE && node.__update !== updateId && node.textContent.includes("{{") ) {
-//         // Save the original text for future updates
-//         node.__originalContent = node.textContent;
-        
-//         // Replace all dynamic paths with the corresponding data
-//         node.textContent = node.textContent.replace(/{{(.+?)}}/g, (match, path) => {
-//           return get(context, path.trim());
-//         });
-
-
-        
-//       }
-
-
-//       if(node.attributes?.length){
-//                 const attrs = node.attributes; // Get all attributes of the element
-//                 Object.values(attrs).forEach((attr) => {
-//                     let value = attr.value;
-//                     let key = attr.name
-//                     let dynamic = false
-//                     if(value.includes("{{")){
-//                         dynamic =  value.trim().slice(2, -2) || false
-//                     }
-//                     if(dynamic){
-//                         attr.value = get(context, dynamic)
-//                     }
-//                 })
-//             }
-//       node.__update = updateId
-    
-//   }
-
-
-  function parseNodes( root, context ={}) {
-    // Find all nodes that contain the dynamic path placeholders
-    // console.time("parseNodes")
-
-    let updateId = Math.random()
-
-
-    fastTraverseDOM(root,node=>{
-
-        parseNode(node, context, updateId)
-    })
-
-
-
-    // const nodes = getAllNodes(root)
-
-
-    // nodes.forEach(node=>{
-
-    //     parseNode(node, context, updateId)
-       
-    // })
-    
-
-        
-    // traverse(root, (node)=>{
-
-    //     debugger
-
-    //     // parseNode(node, update)
-    //     //REPLACE CONTENT
-    //     if ( node.nodeType == node.TEXT_NODE &&  node.__update !== updateId && node.textContent.includes("{{") ) {
-
-    //         debugger
-    //         // Save the original text for future updates
-    //         node.__originalContent = node.textContent;
-            
-    //         // Replace all dynamic paths with the corresponding data
-    //         node.textContent = node.textContent.replace(/{{(.+?)}}/g, (match, path) => {
-    //         return get(context, path.trim());
-    //         });
-    
-    //     }
-
-
-    //     //replace attributes
-    //     if(node.attributes){
-    //         const attrs = node.attributes; // Get all attributes of the element
-    //         Object.values(attrs).forEach((attr) => {
-    //             let value = attr.value;
-    //             let key = attr.name
-    //             let dynamic = false
-    //             if(value.includes("{{")){
-    //                 dynamic =  value.trim().slice(2, -2) || false
-    //             }
-    //             if(dynamic){
-    //                 attr.value = get(context, dynamic)
-    //             }
-    //         })
-    //     }
-
-    //     node.__update = updateId
-    // })
-
-    // console.timeEnd("parseNodes")
-  }
-
-  function getAllTextNodes(node) {
-    const allNodes = [];
-    if (node.nodeType === Node.TEXT_NODE) {
-        allNodes.push(node);
-    } else {
-        for (let childNode of node.childNodes) {
-            allNodes.push(...getAllTextNodes(childNode));
-        }
-    }
-    return allNodes;
-}
-
-function getAllNodes(rootNode) {
-    const allNodes = [];
-    traverseCollect(rootNode, allNodes);
-    return allNodes;
-}
-function traverseCollect(node, allNodes) {
-    allNodes.push(node);
-    for (let childNode of node.childNodes) {
-        traverseCollect(childNode, allNodes);
-    }
-}
-
-function traverse(node, callback) {
-
-    if(callback ) callback(node)
-    for (let childNode of node.childNodes) {
-        traverse(childNode, callback);
-    }
-}
-
-
-
 
 /**
  * 
@@ -1267,214 +1304,255 @@ const compiledRefs = new CompiledRef()
 const updateNodesQueue = new WeakMap()
 
 let idCounter = 0;
-function compileNode(node, context, updateFn){
 
-    if( node.__sCompiled ) return compiledRefs.get(node)
 
-    const nodeRef = {
-        node,
-        ctx:0,
-        id:`id-${idCounter++}`,
-        // get allChildren(){
+const nodeUpdateQueue = []
+function registerNodeUpdate(template, node, ctx){
+
+    nodeUpdateQueue.push([template, node, ctx])
+
+}
+let runningQueue = false
+function updateQueue(ctx){
+    
+        if(runningQueue)return 
+        runningQueue = true
+       
+        // console.log("running queue")
+        // nodeUpdateQueue.reverse()
+        while(nodeUpdateQueue.length){
+            const [node, cloneOrCtx, childCtx] = nodeUpdateQueue.pop()
+      
+            if(childCtx){
+                
+                debugger
+                parallelUpdate(node, cloneOrCtx, childCtx)
+            }else{
+
+                compiledRefs.get(node).runNodeUpdates(node, childCtx || ctx)
+
+            }
+        }
+
+        runningQueue = false
+        // nodeUpdateQueue.length = 0
+}
+function compileHelper(node, isTemplate){
+
+
+       
+        if( node.__sCompiled ) return compiledRefs.get(node)
+         //save compiled prop for faster access
+
+        let  nodeRef = {
+            updaters:{}
+        }
+      
+    
+        //set the id 
+        if(node.dataset) {
+            // node.dataset.__sId = nodeRef.id
+            // node.setAttribute("__sId", nodeRef.id)
+        }
+    
+        let setNode = false
+
+       
+        if(node.tagName !== "TEMPLATE") node.__inTemplate = isTemplate
+
+
+
+        //compile text nodes
+        if ( node.nodeType == node.TEXT_NODE && node.textContent.includes("{{") ) {
+         
+            setNode = true
+    
+            let children = fastParse( node.textContent)
             
-        // }
-    }
-    node.__sId = nodeRef.id
+            children = children.map(child=>{
+                if(child.path){
+                              
+                    const node = document.createTextNode(`{{${child.path}}}`)
+                    node.__inTemplate = isTemplate
+                    
+                    const helper =  new NodeHelper(node )
+                    helper.addUpdate("text", {expression:child.path})
 
-    //set the id 
-    if(node.dataset) {
-        // node.dataset.__sId = nodeRef.id
-        node.setAttribute("__sId", nodeRef.id)
-    }
+                    return node
+                }
 
-    let setNode = false
+                const node = document.createTextNode(child)
+                node.__inTemplate = isTemplate
+
+                return node
+                
+            })
 
 
-    if ( node.nodeType == node.TEXT_NODE && node.textContent.includes("{{") ) {
-
-        setNode = true
-
-       let parentRef =  compiledRefs.get(node.parentNode)
-
-        nodeRef.textContent = fastParse( node.textContent)
-            
-        node.textContent = nodeRef.textContent.filter(v=>typeof v == "string").join("")
-      }
-
-      if(node.attributes?.length){
+             node.replaceWith(...children)
+                
+        }
+    
+        //compile other nodes
+        if(node.attributes?.length){
+           
+            let helper 
+                
             const attrs = node.attributes; // Get all attributes of the element
             Object.values(attrs).forEach((attr) => {
                 let value = attr.value;
                 let key = attr.name
-   
+    
+                //DIRECTIVES
                 if(key.startsWith(prefix)){
+
+                        helper = helper || new NodeHelper(node )
+                    
                     let directiveKey = key.slice(2)
                     if(directives[directiveKey]){
+                        
                         setNode = true
 
-                        nodeRef.directives = nodeRef.directives || {}
-
-                        nodeRef.directives[directiveKey] = value.slice(2, -2) 
-
+                        helper.addUpdate(directiveKey, {expression:value.slice(2, -2)})
+                        
                         node.removeAttribute(key)
                     }
                     return 
                 }
 
+                //EVENTS
                 if(events[key]){
-                    setNode = true
-                    nodeRef.events = nodeRef.events || {}
-                    nodeRef.events[key.slice(2)] = value
-           
+                    helper = helper || new NodeHelper(node )
+
+
+                    helper.addUpdate("events", {expression:value, key:key.slice(2) })
+                    // nodeRef.events = nodeRef.events || {}
+                    // nodeRef.events[key.slice(2)] = value
+                    
                     node.removeAttribute(key)
                     return 
                 }
 
+                //ATTRIBUTES
                 if(value.includes("{{")){
-                    setNode = true
-                    nodeRef.attrs = nodeRef.attrs || {}
+                    helper = helper || new NodeHelper(node )
 
-                    dynamic =  value.trim().slice(2, -2) || false
+                    helper.addUpdate("attrs", {expression:value.trim().slice(2, -2), key,})
+                    // dynamic =  value.trim().slice(2, -2) || false
 
-                    nodeRef.attrs[key] = dynamic
+           
                 }
-              
+                
             })
         }
 
 
-        //save compiled prop for faster access
-        node.__sCompiled  = true
-        
- 
-        if(setNode){
-            compiledRefs.set(node, nodeRef)
+        if(node.tagName == "TEMPLATE"){
 
-            nodeRef.childNodes = node.childNodes
-            
-            if(updateFn) updateFn(nodeRef, context)
-            
-            return nodeRef
-        }
+            // const templateRef = document.createElement("reactive-template")
+            const templateRef = document.createComment("template")
+       
+            templateRef.__inTemplate = isTemplate
+            const ref = compiledRefs.get(node)
+            node.replaceWith(templateRef)
+            templateRef.__sId = ref.id
+
+            templateRef.id= ref.id
+
+            registerNodeUpdate(templateRef)
+
+            ref.root = templateRef
+
+
+            // templateRef.setAttribute("id", ref.id)
     
+             document.body.append(node)
+           
+        }
 
-        
-   
+        return {}
+    
 }
 
-function compileNodes(root, context, updateFn){
+function compileHelpers(root){
 
-    
-    let ctxLevel = 0
-    let parent 
-
-    let childrenByDepth = {}
-    
-    const parentStack = []
-    let lastDepth = 0
-    let ctxId = 0
-    const deepStack = []
-    fastTraverseDOM(root, (node, i, depth, last, hasChildren,  path)=>{
-
-        
-   
-        const ref = compileNode(node )  
-
+    let isTemplate = false
+    fastTraverseDOM(root, (node)=>{
       
-        //node with no changes
-        if(ref){
-            ref.depth = depth
-    
 
-            ref.parentStack = [...parentStack]
-            ref.deepStack = [...deepStack]
-            ref.path = path
-            let depthMap = []
-            parentStack.forEach(parent => {
-                const childrefs = parent.childRefs = parent.childRefs ||[]
-                ref.parentRef = parent
-                //set the reference of the aprent context
-                //[parent1, parent2, parent3 ]
-                if(parent.directives?.loop && !ref.loopRef ){
-                    ref.loopRef = parent
-                }
-                childrefs.push(ref)
-    
-            });
-      
-        }
+         
 
-
-
-        //hoing up
-        if(depth < lastDepth){
-            parentStack.pop()
-            deepStack.pop()
-        }
-        if(depth > lastDepth){
-          
-            deepStack.push(depth)
-        }
-
-
-        //going down
-        if(ref  && !parentStack.length || hasChildren ){
-            if(ref) {
-
-                parentStack.push(ref)
-            
-                if(ref?.directives?.loop){
-                    
-                }
-            }
-        }
-
-
-        lastDepth = depth
-        
-        
-        // let childrenByDepth[depth] = childrenByDepth[depth] || []
-
-       
-
-
-        
+        if(node.parentNode?.nodeType === 11 || node.textContent =="template" ) isTemplate = node.parentNode
+        if(node.previousSibling?.tagName == "TEMPLATE" || node.previousSibling?.textContent =="template") isTemplate = false
    
+        compileHelper(node , isTemplate) 
+        
     })
 
 
-    console.log(parentStack)
     return compiledRefs
-}
 
-function getParentRef(node){
 
-    while(node.parentNode ){
-        const parent = node.parentNode
-    
-        let ref = compiledRefs.get(parent)
-        if(ref) return ref
-        node = parent
-    }
 }
 
 
-function updateTextContent(node, nodeRef, ctx){
 
-    // Replace all dynamic paths with the corresponding data
-    node.textContent = nodeRef.textContent.reduce((str , v)=>{
 
-    if(typeof v === "object") {
-        v = get(ctx.data, v.path)
+      /**
+       * 
+       *
+       * Update order from chatgpt
+       
+        Style Updates: Apply layout-affecting styles first (e.g., width, height, display).
+        Class Updates: Modify classes next (especially if they affect styles or layout).
+        Child Modifications: Add, remove, or reorder child nodes.
+        Text Content Updates: Update the text content or innerHTML (after structural changes).
+        Other Attributes: Modify attributes that don’t affect layout (e.g., data-*, aria-*).
+        Event Listeners: Add event listeners last, after the DOM is fully updated.
+       */
+        function runUpdates(ctx){
+        
 
-        if(!v) v = ""
-        if(typeof v == "object") v = JSON.stringify(v)
-    }
-    return str + v
-
-}, "")
-
-}
+            let {show, text, loop,attrs } =  NodeUpdater.updaters
+             //update attrs
+     
+             
+             // //show
+             // NodeUpdater.updaters
+     
+             // Object.values(NodeUpdater.updaters).forEach(updater=>{
+             //     updater.runUpdate(ctx)
+             // })
+     
+            //  debugger
+            //  nodeUpdateQueue.forEach(([node])=>{
+                
+            //  })
+             updateQueue(ctx
+            //     ([node])=>{
+            //     compiledRefs.get(node).runNodeUpdates(node, ctx)
+            //  }
+            )
+            //  compiledRefs.map.forEach(ref=>{
+            //     if(ref.inTemplate)return
+            //      ref.runNodeUpdates(ref.node, ctx)
+            //  })
+     
+     
+     
+             // show.runUpdate(ctx)
+            
+     
+             // loop.runUpdate(ctx)
+     
+             // attrs.runUpdate(ctx)
+     
+     
+             // text.runUpdate(ctx)
+     
+             //event listeners
+             
+           }
 
 
 /**
@@ -1500,177 +1578,6 @@ function updateTextContent(node, nodeRef, ctx){
  */
 
 
-function initializeWithTemplate( templateRoot, context ){
-    
-    // const payload = {nextNode:root}
-  
-
-    const newChild = templateRoot.cloneNode(true)
-
-
-    let parent = newChild
-    let lastIndex = -1
-    // fastTraverseDOM will create a stack like this
-    //first root
-    //[root]
-    // [child1, child2, child3, ]
-    //[chidl1-1, child1-2, child1-3]
-    // [chidl2-1, child2-2, child2-3]
-
-    let lastNode = newChild
-    fastTraverseDOM(templateRoot, (templateNode, i, depth, last)=>{
-        const isRoot = !templateNode.parentNode
-        if(isRoot){
-            parent = newChild
-        }else{
-            
-            if(!parent.childNodes[i]){
-                parent = parent.nextSibling || parent.parentNode
-            }      
-
-        }
-
-        const child = i === -1 ?  newChild:parent?.childNodes?.[i]
-
-        lastNode = child
-
-        if(!child) debugger
-        
-        let childRef = compiledRefs.get(templateNode)
-        if(childRef) initializeNode({...childRef, node:child}, context)
-
-        //change parent
-        if(!isRoot){
-            //go down
-            if( child?.childNodes?.length){
-                parent = child
-            }
-            //go up
-            else if(templateNode == last){
-                        
-                parent = parent.parentNode
-            
-            }else{
-                //same parent
-            }
-        }
-
-
-        if(!parent) debugger
-        lastIndex = i
-
-        // const isRoot = !templateNode.parentNode
-        // if(isRoot){
-        //     parent = newChild
-        // }else{
-            
-        //     if(!parent.childNodes[i]){
-        //         parent = parent.nextSibling || parent.parentNode
-        //     }      
-
-        // }
-
-    
-        // const child = i === -1 ?  newChild:parent?.childNodes?.[i]
-
-        // lastNode = child
-
-        // if(!child) debugger
-        
-        // let childRef = compiledRefs.get(templateNode)
-        // if(childRef) initializeNode({...childRef, node:child}, context)
-
-        // //change parent
-        // if(!isRoot){
-        //     //go down
-        //     if( child.childNodes.length){
-        //         parent = child
-        //     }
-        //     //go up
-        //     else if(last){
-                        
-        //         parent = parent.parentNode
-            
-        //     }else{
-        //         //same parent
-        //     }
-        // }
-
-
-        // if(!parent) debugger
-        // lastIndex = i
-
-        
-    })
-
-
-
-    return newChild
-        
-    
-}
-
-function initializeNodes( ctx){
-
-    for (const [node, ref] of compiledRefs.map) {
-       
-        initializeNode(ref, ctx)
-    }
-}
-
-function initializeNode( nodeRef, ctx, updateId){
-
-    let node = nodeRef.node
-
-    if(ctx.isLoop)return 
-
-    if ( nodeRef.textContent ) {
-
-
-        effect((payload = {}, handler)=>{
-
-            let {target, key, value} = payload
-
-            updateTextContent(nodeRef.node, nodeRef,ctx)
-        })
-
-        
-      }
-
-      if(nodeRef.attrs){
-
-
-
-        effect(()=>{
-            updateAttrs(nodeRef.node, nodeRef, ctx)
-        })
-           
-
-      }
-
-      if( nodeRef.events){
-
-            const events = nodeRef.events
-
-            Object.keys(events).forEach(event=>{
-
-                setupEvent(event, events[event], nodeRef, ctx)
-  
-            })
-            
-      }
-
-      if(nodeRef.directives){
-
-           updateDirectives(nodeRef.node, nodeRef, ctx)
-
-      }
-
-
-}
-
-
-
 //this will create a an stack like this
 
 /**
@@ -1683,86 +1590,65 @@ function initializeNode( nodeRef, ctx, updateId){
 
 function fastTraverseDOM(root, processNode) {
 
-    console.time("fastTraverseDOM")
 
-
-    const stack = [[root, -1, 0, null]];
+    const stack = [root];
     
 
     while (stack.length > 0) {
 
-        const [node, index, depth, last,  path, parentNode] = stack.pop();
+        let  node = stack.pop();
     
-        //also process template children
-        const childNodes = (node.tagName == "TEMPLATE" )? node.content.childNodes:node.childNodes
-        //no deep first
-        if(node.setAttribute) node.setAttribute("data-depth", depth)    
-        
-        //set a node id
-
-
-         processNode(node , index, depth, last,  childNodes.length, path, parentNode);
-
        
-        // Push child nodes to the stack in reverse order
-        // This ensures we process them in the correct order when popping
-        //pus to the stack [child1, child2, child3]
+        //is is an element instead of a template
+        if( node.hasAttribute && node.hasAttribute("s-loop") && node.tagName !== "TEMPLATE"){
+            // let ref =  document.createTextNode("")
+            const newTemplate = document.createElement("template")
+            // let newTemplate = document.createDocumentFragment()
 
-       
-        for (let i = childNodes.length - 1; i >= 0; i--) {
-            const last = i == (childNodes.length - 1)
+            newTemplate.setAttribute("s-loop", node.getAttribute("s-loop"))
 
-               let  childPath = path ? [...path, i] : [i]
-            stack.push([childNodes[i], i, depth + 1 , last, childPath ,node, ]);
+    
+            //remove s-llop to avoid inifinite loop
+            node.removeAttribute("s-loop")
+            node.after(newTemplate)
+            newTemplate.content.appendChild(node)
+
+
+            node = newTemplate
+
+
+
         }
 
 
-        // deep first
-        // stack [level3, level2, level1]
-        // processNode(node , index, parentNode, last, childNodes.length);
-        
+         //also process template children
+         const childNodes = (node.tagName == "TEMPLATE" )? node.content.childNodes:node.childNodes
+
+
+        //set a node id
+         processNode(node );
+
+       
+        // Push child nodes to the stack in reverse order
+        // This ensures we process them in the correct order when popping       
+        for (let i = childNodes.length - 1; i >= 0; i--) {
+
+             stack.push(childNodes[i]);
+        }
+
+
+    
 
     }
 
-    // const walker = document.createTreeWalker(rootOrArray,
-    //     //  NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT
-    //      NodeFilter.SHOW_ALL
-    //      , {
-    //     acceptNode: function (node) {
-    //       // Only accept nodes that have dynamic content or need updates
-    //       return true
-    //       if (true) {
-    //         return NodeFilter.FILTER_ACCEPT;
-    //       } else {
-    //         return NodeFilter.FILTER_SKIP;
-    //       }
-    //     }
-    //   });
-      
-    
-    //   let parent = walker.currentNode.parentNode
-    //   let i = 0
-    //   while (walker.nextNode()) {
-    //     const currentNode = walker.currentNode;
+  
 
-    //     console.log(currentNode)
-    //     if(parent !== walker.currentNode.parentNode){
-    //         parent = currentNode.parentNode
-    //         i = 0
-    //     }
-    //     processNode(currentNode ,i, parent,  walker.lastChild() ); // Update only the necessary nodes
-
-       
-    //     i++
-    //   }
-
-
-    console.timeEnd("fastTraverseDOM")
 }
 
 
 
 
+//converts a string text that contain "{{some}}" into multiple text nodes
 function fastParse(str) {
     let result = [];
     let start = 0;
@@ -1770,19 +1656,25 @@ function fastParse(str) {
     
     while (openBrace !== -1) {
         if (start !== openBrace) {
-            result.push(str.slice(start, openBrace));
+            const noExpression= str.slice(start, openBrace)
+            // result.push(document.createTextNode(noExpression));
+            result.push(noExpression);
         }
         
         let closeBrace = str.indexOf('}}', openBrace);
         if (closeBrace === -1) break;
         
-        result.push({path: str.slice(openBrace + 2, closeBrace).trim()});
+        let path = str.slice(openBrace + 2, closeBrace).trim();
+         result.push({path});
+        // result.push(document.createTextNode(path))
         start = closeBrace + 2;
         openBrace = str.indexOf('{{', start);
     }
     
     if (start < str.length) {
-        result.push(str.slice(start));
+        const noExpression= str.slice(start)
+        result.push(noExpression)
+        // result.push(document.createTextNode(noExpression));
     }
     
     return result;
@@ -1790,411 +1682,792 @@ function fastParse(str) {
 
 
 
-//function provided by cloude.ia as optimizate way to updat nodes without repainting
-
-function fastBatchUpdate(nodes, getNewContent) {
-    // Create a document fragment
-    const fragment = document.createDocumentFragment();
-    
-    // Use requestAnimationFrame to batch updates
-    requestAnimationFrame(() => {
-        nodes.forEach((node, index) => {
-            // Clone the node
-            const clone = node.cloneNode(false);
-            
-            // Update the clone's textContent
-            clone.textContent = getNewContent(node, index);
-            
-            // Append the clone to the fragment
-            fragment.appendChild(clone);
-        });
-
-        // Replace all nodes in a single operation
-        nodes.forEach((node, index) => {
-            node.parentNode.replaceChild(fragment.children[0], node);
-        });
-    });
-}
-
-// Usage example:
-const nodesToUpdate = Array.from(document.querySelectorAll('.update-me'));
-fastBatchUpdate(nodesToUpdate, (node, index) => `New content ${index}`);
-
-
-
-
-function setupEvent(event, value, nodeRef, context){
-
-    let node = nodeRef.node
-    let eventName = event
-
-
-    if(!events["on"+event]) {
-        console.warn(`Event ${event} not found`)
-        return  
-    } 
-
-    const ctx = context.data
-
-    let isExpression, isAnonymous,  isNamed, isFunction, caller = "";
-    if(value.startsWith("(")) isAnonymous = true
-    if(value.match(/^[a-zA-Z]/)) isNamed = true
-     if(!value.includes("(")) caller = "(event, node)"
-
-     let args = ""
-   
-    let stringFn = `this.${value}${caller}`
-    
-   if(isAnonymous){
-
-        args = value.match(/\{.+\(([^)]+)\)/)?.[1] || ""
-    
-        stringFn =`(${value})(event)`
-    }
-   
-    if(isNamed){
-        args = value.match(/\(([^)]+)\)/)?.[1] || ""
-    }
-
-
-    const code =  `
-    
-        let {${args}} = this
-
-        ${stringFn}   
-    `
-    let  fn = new Function("event",  "node", "ctx", "window" , code )
-
-
-    node.addEventListener(eventName, (e)=>{
-
-        fn.call(ctx, e,  node, ctx )    
-    })
-
-   
-
-
-}
-
-
-
-function parseNode(node, context) {
-    const walker = document.createTreeWalker(node, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, {
-      acceptNode: function (node) {
-        // Only accept nodes that have dynamic content or need updates
-        if (shouldUpdateNode(node, context)) {
-          return NodeFilter.FILTER_ACCEPT;
-        } else {
-          return NodeFilter.FILTER_SKIP;
-        }
-      }
-    });
-  
-    while (walker.nextNode()) {
-      updateNode(walker.currentNode, context); // Update only the necessary nodes
-    }
-  }
-
-  const nodeContextMap = new WeakMap();
-
-function updateNode(node, context) {
-  const nodeContext = nodeContextMap.get(node);
-  if (nodeContext) {
-    // Update node based on its specific context
-    applyContext(node, nodeContext, context);
-  }
-}
-
-
-function cloneWithRef(template){
-    
-
-        let root 
-
-       const walker =  document.createTreeWalker(template, NodeFilter.SHOW_ALL)
-
-    //    const parentRelation = new WeakMap()
-
-
-    //    while(walker.nextNode() || !root){
-    //         const template = walker.currentNode
-    //         const newNode = template.cloneNode()
-        
-    //     debugger
-    //         if(!root) root = newNode
-
-    //         const ref = compiledRefs.get(template)
-
-    //         if(ref)  newNode.__sId = ref.id
-
-    //         const parent = parentRelation.get(template.parentNode)
-
-    //         if(parent ) parent.appendChild(newNode)
-            
-    //          parentRelation.set(template, newNode)
-
-    //    }    
-
-    //    debugger
-           
-       const stack = [[template]]
-        while(stack.length){
-                const [template, parent] = stack.pop()
-                const newNode = template.cloneNode()
-               
-                if(!root) root = newNode
-
-                const ref = compiledRefs.get(template)
-
-                if(ref)  newNode.__sId = ref.id
-
-                if(parent ) parent.appendChild(newNode)
-
-                const childNodes = template.childNodes
-                for (let i = childNodes.length - 1; i >= 0; i--) {
-
-                    stack.push([childNodes[i], newNode]);
-                }
-              
-
-        }
-
-        return root
-        
-
-}
-function updateWithRef(node,   ref, ctx){
-
-    // let template 
-    // if(isTemplate) {
-    //     template = node
-    //     node = node.cloneNode()
-    // }
-    if(!ref) return 
-    
-    const nodeRef = ref 
-    if(nodeRef ){
-
-     
-        if ( nodeRef.textContent ) {
-
-            updateTextContent(node, nodeRef,ctx)
-        
-        }
-
-        if(nodeRef.attrs){
-
-            updateAttrs(node, nodeRef, ctx)
-
-        }
-
-        if(  nodeRef.events){
-
-            const events = nodeRef.events
-
-            nodeRef.listening = nodeRef.listening || {}
-
-            if(nodeRef.listening.includes(node)) return 
-           
-               
-            Object.keys(events).forEach(event=>{
-
-                nodeRef.listening[event] = []
-                nodeRef.listening[event].includes(node) || nodeRef.listening[event].push(node)
-                if(nodeRef.eventsSetup) {
-                    setupEvent(event, events[event], nodeRef, ctx)
-                }
-    
-            })
-     
-          nodeRef.eventsSetup = true
-        }
-
-
-        if(nodeRef.directives){
-
-            updateDirectives(node, nodeRef, ctx)
-
-        }  
-
-
-    }
-
-    // const stack = [node]
-
-    // while(stack.length){
-
-    //     const node = stack.pop()
-    //     const  nodeRef = compiledRefs.get(node)
-    //      //Has dynamic content
-        
-
-    //     const childNodes = node.childNodes
-
-    //     for (let i = childNodes.length - 1; i >= 0; i--) {
-     
-    //         stack.push(childNodes[i]);
-    //     }
-    // }
-
-   
-    // if(isTemplate && template.childNodes.length){
-   
-    //     // const stack = [template.childNodes]
-    //     // let parent = node
-    //     // while(stack.length){
-    //     //         const template = stack.pop()
-    //     //         const childNodes = template.childNodes
-
-    //     //         const childRef = compiledRefs.get(child)
-    //     //         const newChild = updateWithRef(child, childRef, ctx)
-
-    //     //         node.appendChild(newChild)
-
-    //     //         for (let i = childNodes.length - 1; i >= 0; i--) {
-    //     //             const last = i == (childNodes.length - 1)
-                    
-    //     //             if(parent) parent.appendChild(newChild)
-    //     //             stack.push([childNodes[i], i, depth + 1 , last, node, ]);
-    //     //         }
-    //     //         parent = false
-
-    //     // }
-    //     // template.childNodes.forEach(child=>{
-    //     //     const childRef = compiledRefs.get(child)
-    //     //     const newChild = updateWithRef(child, childRef, ctx, isTemplate)
-
-    //     //     node.appendChild(newChild)
-           
-    //     // })
-
-        
-    // }
-       
-
-
-    return node
-
-
-}
-
-
-function updateDirectives(node, nodeRef, ctx){  
-    Object.keys(nodeRef.directives).forEach(key => {
-   
-        const value = nodeRef.directives[key]
-        const directiveHandler = directives[key]
-
-        if(directiveHandler){
-            directiveHandler({ init:nodeRef.directivesSetup , value, node, nodeRef, data:ctx.data, ctx})
-
-        }
-    });
-}
 
 
 
 
 function createComponent(template){
 
-    customElements.define(
-        "my-paragraph",
-        class extends HTMLElement {
-          constructor() {
-            super();
-            let template = document.getElementById("custom-paragraph");
-            let templateContent = template.content;
-      
-            const shadowRoot = this.attachShadow({ mode: "open" });
-            shadowRoot.appendChild(templateContent.cloneNode(true));
-          }
-        },
-      );
+    
+
+  customElements.define(
+    "reactive-template",
+    class extends HTMLElement {
+    static observedAttributes = ["id"];
+      constructor() {
+        super();
+
+        debugger
+        // let template = document.getElementById("custom-paragraph");
+        // let templateContent = template.content;
+  
+        // const shadowRoot = this.attachShadow({ mode: "open" });
+        // shadowRoot.appendChild(templateContent.cloneNode(true));
+      }
+      attributeChangedCallback(name, oldValue, newValue) {
+        console.log(`Attribute ${name} has changed.`);
+        if(name == "id"){
+            let ref = compiledRefs.idMap.get(newValue)
+            if(!ref) debugger
+            let template = ref.node 
+
+            
+            // const shadowRoot = this.attachShadow({ mode: "open" });
+            // shadowRoot.appendChild(templateContent.cloneNode(true));
+         
+            this.replaceWith(template.content.cloneNode(true))
+        }
+      }
+    },
+  );
+
 
 
   }
 
 
 
-function  cloneNode(node, ref){
+  function updateNode(root, ctx){
 
-    const newNode = node.cloneNode(true)
-    newNode.__sId = ref.id
 
-    return newNode
+    const stack = [root]
+
+    while(stack.length){
+        const node = stack.pop()
+        const ref = compiledRefs.get(node)
+
+        if(ref){
+
+
+             ref.runNodeUpdates(node, ctx, true)
+        }
+        // const childNodes = (node.tagName == "TEMPLATE" )? node.content.childNodes:node.childNodes
+        const childNodes = node.childNodes
+
+        for(let i = childNodes?.length - 1; i >= 0; i--){
+           
+            stack.push(childNodes[i])
+           
+        }
+    }
+  }
+
+function parallelTraverse(root, clone, callback){
+
+    let stack = [[root, clone]]
+    while(stack.length){
+        let [node, clone] = stack.pop()
+
+        if(!clone?.childNodes)debugger
+        let children = node.childNodes
+        let cloneChildren = clone.childNodes
+
+        callback(node, clone)
+
+        for(let i = children.length - 1; i >= 0; i--){
+            stack.push([children[i], cloneChildren[i]])
+        }
+    }
+
 }
 
-
-
-function  cloneDeep(template, callback){ 
+function  cloneDeep(template, callback, ){ 
 
 
     const stack = [[template]]
     let root 
-    while(stack.length){
-        const [node,parent] = stack.pop()
-        const newNode = node.cloneNode()
+   while(stack.length){
+        let [node,parent, ] = stack.pop()
+
+        if(!node)debugger
+        const isTemplate = node.tagName == "TEMPLATE" 
+
+        //do not clone templates
+        const newNode = isTemplate?node: node.cloneNode()
         const ref = compiledRefs.get(node)
+
         if(ref) newNode.__sId = ref.id
-        if(!root) root = newNode
-        if(parent)  parent.appendChild(newNode)
-        const childNodes = node.childNodes
+
+        if(!root) {
+            root = newNode
+           
+        }
+        
+        if( parent && !parent.__inTemplate && !isTemplate) {
+            parent.appendChild(newNode)
+        }
+       
+     
+        //IF IS A TEMPLATE, PASS the parent of the template as a parent
+        const nodeParent = node.tagName == "TEMPLATE"?newNode.parentNode:newNode
+        //get child nodes of the fragment
+        const childNodes = (node.tagName == "TEMPLATE" )? node.content.childNodes:node.childNodes
 
         if(callback) callback(newNode, ref, )
 
+        if(node.textContent == "template") {
+            debugger
+            continue
+        }
+        if(isTemplate){
+            debugger
+        };
+        
+
+
         for(let i = childNodes?.length - 1; i >= 0; i--){
-           
-            stack.push([childNodes[i], newNode])
+                       
+            stack.push([childNodes[i], nodeParent])
            
         }
     }
 
     return root
 
-    // const newNode = template.cloneNode()
-    // const ref = compiledRefs.get(template)
-
-    // if(ref) newNode.__sId = ref.id
-
-    // for(let child of template.childNodes){
-
-    //     const newChild = cloneDeep(child)
-    //     newNode.appendChild(newChild)
-    // }
-
-    // return newNode
 }
 
 
 
 
 
-function renderObject(obj){
 
 
-        if(typeof obj != "object") return document.createTextNode(obj)
 
-        if(obj.type == "text") {
-             return   document.createTextNode(obj.textContent.filter(v=>typeof v == "string").join(""))
+      class NodeHelper{
+
+        // directives = false
+        // attrs = false
+        // events = false
+        // textContent = false
+
+        node = false
+        updates = []
+
+
+        constructor(node, updaters = {}){
+
+            const validOptions = [ "updaters"]
+
+
+   
+            this.id = `id-${idCounter++}`
+         
+            this.node = node
+
+
+            if(node.inTemplate) this.inTemplate = true
+            else if(node.tagName !== "TEMPLATE") {
+
+                registerNodeUpdate(node)
+            }
+            // if(updaters){
+            //     Object.entries(updaters).forEach(([id, updater])=>{
+            //         this.addUpdate(id, updater)
+            //     })
+            // }
+
+            compiledRefs.set(node, this)
+            node.__sCompiled 
+            // Object.keys(options).forEach(key => {
+            //     if(validOptions.includes(key)) this[key] = options[key]
+            // });
+
         }
- 
-        const element = document.createElement(obj.type)
+        addUpdate(id, config){
+
+            let updater = NodeUpdater.getInstance(id)
+
+            if(!updater){
+                console.warn(`Updater ${id} not found`)
+                return
+            }
 
 
-        if(!obj.children) return element
-        obj.children.forEach(child => {
-            child = renderObject(child)
-            element.appendChild(child)
-        });
-
-        return element
+            const payload =  updater.registerHelper(this, config)
+     
+            this.updates.push({updater, payload})
+        }
+        runNodeUpdates(node, ctx, force){
     
+            if(!node.__sId) node.__sId = this.id
+            Object.values(this.updates).forEach(update=>{
+               
+                if(force){
+                    update.updater.forceUpdate(node, update.payload ,ctx )
+                }else{
+                   
+                    update.updater.runNodeUpdate(node, update.payload ,ctx, update )
+                }
+            })
+
+        }
+    
+      
+
+
+      }
+
+      /**
+       * IMPORTANT:
+       * 
+       Summary of Optimal Update Order:
+        Styles (especially layout-affecting styles like width, height, margin)
+        Classes (if they affect styles or layout)
+        Text Content (textContent or innerHTML)
+        Other Attributes (e.g., data-*, aria-*, non-layout attributes)
+       */
+
+    class NodeUpdater{
+        priority = 10
+
+        static updaters = {}
+        constructor(options){
+            this.constructor.updaters[options.id] = this
+
+            this.updateFunction = options.updateFunction
+
+            let validOptions = ["getValue", "resolveExpression", "effect", "type", "priority", "id"]
+            Object.keys(options).forEach(key => {
+                // if(!validOptions.includes(key)) return
+                      this[key] = options[key]
+ 
+            });
+        }
+        static getInstance(id){
+           return  this.updaters[id] 
+        }
+        type = false // text or attribute or false //with false you handle the 
+        init(ctx){
+
+        }
+    
+        
+        updateFunction(){
+
+            console.warn("Update function not created for this nodeUpdater")
+            
+        }
+        
+    
+  
+       
+   
+        nodes = new WeakMap()
+        registerHelper(helper, payload){
+
+            const[exp, debug] = payload.expression.split(":")
+            payload.expression = exp
+            payload.debug = debug
+
+            this.registerExpression( exp )
+            // this.nodes.push({node, payload})
+
+            const raw = exp
+            const expression = this.expressions[raw]
+
+            return {...payload, expression, raw, helper}
+        }
+        getNodeObject(node){
+            if(this.nodes.has(node)){
+                return this.nodes.get(node)
+            }
+            const obj = { expressions:{}}
+            this.nodes.set(node, obj)
+            return obj
+        }
+        
+        getUpdatePayload(){
+            return {
+                ctx:this.ctx,
+            }
+        }
+        runUpdate(ctx){
+
+            this.nodes.forEach(({node, payload})=>{
+
+                 this.runNodeUpdate(node, payload, ctx)
+            })
+        }
+
+        effect(){
+            return this.getValue(...arguments)
+        }
+        getValue({expression,} , data){
+            
+            return get(data, expression)
+        }
+      
+        getPropertyTarget(obj, prop){
+
+            while(!obj.hasOwnProperty(prop)){
+                
+               if( obj.hasOwnProperty(prop)) return obj
+               let proto = Object.getPrototypeOf(obj)
+               if(proto) obj = proto
+               else return obj
+            }
+            return obj
+        }
+
+        getValueWithPayload( payload, ctx){
+            
+            let expression = payload.expression || payload
+            const raw = expression
+            expression = this.expressions[expression]
+
+            return this.getValue(payload, ctx.data)
+        }
+
+        expressions = {}
+        registerExpression( expression){
+
+            if(this.expressions[expression] ) return 
+            
+            let expressionValue = expression
+            if(this.resolveExpression) expressionValue = this.resolveExpression(expression)
+
+            this.expressions[expression] = expressionValue
+
+        }
+
+        forceUpdate(node, payload, ctx){
+
+            if(node.__inTemplate) {                    
+               return;
+            }
+                     
+           const value = this.getValueWithPayload( payload, ctx)
+                                      
+           this.updateFunction(node, { value} ,payload, ctx)
+
+
+        }
+
+        runNodeUpdate(node, payload, ctx, originalUpdate){
+
+                 if(node.__inTemplate) {                    
+                    return;
+                 }
+                         
+                const value = this.getValueWithPayload( payload, ctx)
+                 
+                //filter by original update object and node to avoid adding new updates
+                let nodeObj =this.getNodeObject(node)
+
+                if(nodeObj.originalUpdate) {
+
+                    return
+                } 
+
+                nodeObj.originalUpdate = originalUpdate
+
+
+                //skip the ones that just need one update
+                if(!this.effect)  {
+                    this.updateFunction(node, {value}, payload, ctx)
+                    return
+                }
+                
+                //SAVE update BY ORIGINAL UPDATE
+                const updatesByOriginal = this._effectUpdates = this._effectUpdates || new WeakMap()
+
+            
+                let createEffect = !updatesByOriginal.get(originalUpdate)
+
+                let updates = updatesByOriginal.get(originalUpdate) 
+
+                if(!updates){
+                    updates = []
+                    updatesByOriginal.set(originalUpdate, updates)
+                }
+
+
+                // if(node.nodeType == node.TEXT_NODE && raw == "attrs") debugger
+
+    
+                updates.push({payload, node, ctx})
+                
+                this.updateFunction(node, {value}, payload, ctx)
+                if(!createEffect) {
+          
+                //    if(raw.includes("task,")) console.log("skipping effect",raw, node)
+                    return 
+                }
+  
+
+                if(payload.expression.includes(","))debugger
+        
+                if(!this.effect)debugger
+   
+                     watch( 
+                        //    this.effect({expression, data:ctx.data})
+                             ()=>{
+                             
+                                return this.getValueWithPayload( payload, ctx)
+                             }
+                            //  ()=>this.updateFunction(node, {value}, payload, ctx)
+                        
+                        , (updatePayload)=>{
+                                      
+                         
+                            const updates = updatesByOriginal.get(originalUpdate)
+                            
+                            //IMPORTANT: updates only sould be larger than one  for loops
+                            //so basically this is a loop feature and I can check index
+                            //to skip other updates
+                            //run mulitple updates of the same nodeHelper update with the same effect
+                            updates.forEach(({node, payload, ctx}, index)=>{
+                              
+                                // if(updates.length > 1 && index != updatePayload.key) return
+                                const value = this.getValueWithPayload( payload, ctx)
+                                                       
+                                if(payload.debug) debugger
+
+                                this.updateFunction(node, {...updatePayload, value} ,payload, ctx)
+                            })
+                            
+                    },{deep:this.deep ?? true, updater:this})
+          
+
+                   
+            
+
+        }
+
+      }
+
+
+
+      const textUpdater = new NodeUpdater({
+
+            priority:3,
+            id:"text",
+            updateFunction(node , { value}, {expression, debug}, ctx){
+
+                if(debug)debugger
+                if(node.dataset && node.dataset.la )debugger
+                // value = get(ctx.data, expression)
+                if(value && value.attrs) debugger
+                if(typeof value == "object") value = JSON.stringify(value)
+
+                // if(value?.includes && value.includes("{{")){
+                //     value = value.split(/({{.+?}})/g).reduce((c, v)=>{
+                //         if(!v.includes("{{"))return c+v
+                //         const path = v.slice(2, -2)
+                //         return c + get(ctx.data, path)
+                //     }, "")
+                // }
+
+                node.textContent = value
+            }
+      })
+
+      const attrsUpdater = new NodeUpdater({
+            
+            priority:4,
+            id:"attrs",
+            updateFunction(node,{value, oldValue}, { key,expression, }, ctx){
+
+       
+                // if(value === oldValue)return
+                if(key == "onkeypress")debugger
+                node.setAttribute(key, value)
+                if(key == "value"){
+                     node.value = value
+
+                    if(!node.__inputEvent){
+
+                        node.__inputEvent = true
+                        nextTick(()=>{
+                            node.addEventListener("input", (e)=>{
+                                 console.log(ctx.data, expression, e.target.value)
+                                set(ctx.data, expression , e.target.value)  
+                                nextTick(()=>{
+                                    
+                                     node.focus()
+                                })
+                            })
+                        })
+                    }
+                    
+                }
+                
+            }
+      })
+
+
+      const listenerRefs = new Map()
+      const eventsUpdater = new NodeUpdater({
+
+            priority:5,
+            id:"events",
+            effect:false,
+            updateFunction(node, { value}, { expression, key, }, ctx){
+
+                nextTick(()=>{
+                    this.setupEvent(node, key, expression,  ctx)
+                })
+                
+            },
+
+      })
+
+      Object.assign(eventsUpdater,{
+        setupEvent(node, event,expression, context){
+
+            let nodeRef = this.nodes.get(node)
+            if(!nodeRef) {
+                nodeRef = {}
+                listenerRefs.set(node, nodeRef)
+            }
+
+            const eventName = event
+            const listening = nodeRef.listening = nodeRef.listening || {}
+            const ctx = context.data
+            if(listening[event]){
+                if(listening[event].includes(node)) return
+                listening[event].push(node)
+        
+               const fn =  nodeRef.eventCallbacks[event] 
+                
+                nextTick(()=>{
+                        node.addEventListener(eventName,  (e)=>{
+                            
+                            // console.log("evenntntntntnntntnt", e, eventName)
+                         if( !listeners.includes(node))return 
+                        fn.call(ctx, e,  node, ctx)    
+                    })
+                })
+               
+                return 
+            }
+            const listeners = listening[event] = listening[event]  ||  []
+        
+            if(nodeRef.listening[event].includes(node) )return 
+           
+            nodeRef.listening[event].push(node)
+        
+        
+            const value = expression
+        
+        
+            if(!events["on"+event]) {
+                console.warn(`Event ${event} not found`)
+                return  
+            } 
+        
+        
+        
+            const fn = this.getEventFunction(value)
+        
+            nodeRef.eventCallbacks = nodeRef.eventCallbacks || {}
+            nodeRef.eventCallbacks[event] = fn
+           
+            nextTick(()=>{
+    
+                node.addEventListener(eventName,  (e)=>{
+        
+                    // console.log("evenntntntntnntntnt", node, e, eventName)
+                    if( !listeners.includes(node))return 
+                   fn.call(ctx, e,  node, ctx )    
+               })
+            })
+        
+        
+        },
+        getEventFunction(value){
+
+            let isExpression, isAnonymous,  isNamed, isFunction, caller = "";
+            if(value.startsWith("(")) isAnonymous = true
+            if(value.match(/^[a-zA-Z]/)) isNamed = true
+             if(!value.includes("(")) caller = "(event, node)"
+        
+             let args = ""
+           
+            let stringFn = `this.${value}${caller}`
+            
+           if(isAnonymous){
+        
+                args = value.match(/\{.+\(([^)]+)\)/)?.[1] || ""
+            
+                stringFn =`(${value})(event)`
+            }
+           
+            if(isNamed){
+                args = value.match(/\(([^)]+)\)/)?.[1] || ""
+            }
+        
+        
+            const code =  `
+            
+                let {${args}} = this
+        
+                ${stringFn}   
+            `
+            const  fn = new Function("event",  "node", "ctx", "window" , code )
+        
+            return fn
+        
+        }
+      })
+
+
+
+      //directive updaters
+      Object.entries(directives).forEach(([key, value])=>{
+
+            new NodeUpdater({id:key, ...value})
+      })
+
+  
+
+      
+
+
+      function toRaw(obj){
+        if(typeof obj != "object") return obj
+
+        return obj.__raw || obj
+
+      }
+
+
+
+  
+
+      function compare(source, target) {
+        const toAdd = [];
+        const toRemove = [];
+        const toReposition = [];
+        const toKeep = [];
+        const types = new Set(); // Store unique types of values
+        const jobs = new Set();
+      
+        const isArray = Array.isArray(source) && Array.isArray(target);
+      
+        if (isArray) {
+          // Step 1: Create a map for fast lookups in the target array
+          const targetMap = new Map();
+          target.forEach((value, index) => targetMap.set(value, index));
+      
+          // Step 2: Compare source array with the target array
+          for (let i = 0; i < source.length; i++) {
+            const sourceValue = source[i];
+            types.add(typeof sourceValue);  // Track unique types
+      
+            const targetIndex = targetMap.get(sourceValue);
+      
+            if (targetIndex !== undefined) {
+              // Element found in the target array
+              if (i === targetIndex) {
+                // Same position -> toKeep
+                toKeep.push([i, sourceValue]);
+                jobs.add("keep")
+              } else {
+                // Different position -> toReposition
+                toReposition.push([i, sourceValue, targetIndex, target[targetIndex]]);
+                jobs.add("move")
+              }
+              // Remove it from the targetMap to track unvisited elements
+              targetMap.delete(sourceValue);
+            } else {
+              // Element not found in the target array -> toAdd
+              toAdd.push([i, sourceValue]);
+              jobs.add("add")
+            }
+          }
+      
+          // Step 3: Remaining elements in the targetMap are toRemove (index, value)
+          targetMap.forEach(( index, value) => {
+            types.add(typeof value); // Track unique types
+
+            if(typeof index =="object")debugger
+            toRemove.push([index, value]);  // Correct order: [index, value]
+            jobs.add("remove")
+          });
+      
+        } else {
+          // Comparing objects key by key
+          const sourceKeys = Object.keys(source);
+          const targetKeys = Object.keys(target);
+      
+          // Create a Set for fast lookup in target keys
+          const targetKeySet = new Set(targetKeys);
+      
+          // Step 1: Compare source object keys with target
+          sourceKeys.forEach((key) => {
+            types.add(typeof source[key]);  // Track unique types for source
+      
+            if (target.hasOwnProperty(key)) {
+              if (source[key] === target[key]) {
+                // Same value -> toKeep
+                toKeep.push([key, source[key]]);
+                jobs.add("keep")
+              } else {
+                // Different value -> toReposition
+                toReposition.push([key, source[key], key, target[key]]);
+                jobs.add("move")
+              }
+              targetKeySet.delete(key);  // Mark key as visited
+            } else {
+              // Key exists in source but not in target -> toAdd
+              toAdd.push([key, source[key]]);
+              jobs.add("add")
+            }
+          });
+      
+          // Step 2: Remaining keys in targetKeySet -> toRemove (key, value)
+          targetKeySet.forEach((key) => {
+            types.add(typeof target[key]); // Track unique types for target
+            toRemove.push([key, target[key]]);  // Correct order: [key, value]
+            jobs.add("remove")
+          });
+        }
+      
+        return {
+            jobs: Array.from(jobs),
+          toAdd,
+          toRemove,
+          toReposition,
+          toKeep,
+          types: Array.from(types)  // Return unique types as an array
+        };
+      }
+      
+  function parallelUpdate(template, newNode, ctx){
+
+    parallelTraverse(template, newNode, (node, clone)=>{
+
+        let ref = compiledRefs.get(node)
+        if(!newNode)debugger
+    
+        if(ref){
+
+            ref.runNodeUpdates(clone, ctx)
+        }
+    
+      })
+  }
+
+
+  function check(root){
+
+    const stack = [root]
+    const nodes = []
+    while(stack.length){
+        const node = stack.pop()
+
+        const childNodes = node.tagName == "TEMPLATE"?node.content.childNodes: node.childNodes
+
+        if(!node.__inTemplate)nodes.push(node)
+        for(let i = childNodes?.length - 1; i >= 0; i--){
+           
+            stack.push(childNodes[i])
+           
+        }
     }
 
-    function getNodeByPath(root, path) {
-        let currentNode = root;
-        for (let i = 0; i < path.length; i++) {
-          currentNode = currentNode.childNodes[path[i]];
-        }
-        return currentNode;
-      }
+    return nodes
+
+  }
+

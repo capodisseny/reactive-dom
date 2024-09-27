@@ -162,3 +162,43 @@ queue.foreach(handler=>{
     })
     
 })
+
+
+
+
+
+//node loops
+
+//childNodes ref
+nodeRef:{
+
+    attrs:{}
+    directives:{}
+    childNodes:[]?
+
+
+}
+
+fragment = [
+    child1:{
+        childNodes:[
+            deepChildTemplate:{
+
+            }
+        ]
+    }
+    child2, 
+
+]
+
+//in a dom traverse
+while(){
+
+        nodeRef = compiledRefs.get(deepChildTemplate)
+
+        let deepChild = ?? how to access this deepChild
+        initializeNodeWithRef(deepChild, nodeRef, context)
+}
+
+
+initializeNodeWithRef(templateChild, child, context )
