@@ -238,7 +238,7 @@
             const jobs = comparison.jobs
              console.timeEnd("Comparison")
 
-             const oneJob = jobs.length == 1?jobs[0]:false
+             const oneJob = jobs.length === 1?jobs[0]:false
 
              if(oneJob =="keep") return
 
@@ -269,6 +269,10 @@
        
             //skip update when the length is the same and all the values are the same type
             if(sameLength && comparison.types.length == 1 && comparison.types[0] != "object") return
+
+
+            console.log("proceeed")
+
             const afterUpdate = []
             comparison.toKeep.forEach(([key, item], index)=>{
 
@@ -289,10 +293,10 @@
             comparison.toRemove.forEach(([key, item], index)=>{
 
 
-                //string udpate 
-                if(sameLength && typeof item !== "object" &&  typeof item == typeof comparison.toAdd[index][1]){
-                    return
-                 }
+                // //string udpate 
+                // if(sameLength && typeof item !== "object" &&  typeof item == typeof comparison.toAdd[index][1]){
+                //     return
+                //  }
 
                 const obj = loopNodes.get(key)
                
@@ -347,27 +351,7 @@
              //add new
              comparison.toAdd.forEach(([key, item], index)=>{
                 
-                 //string udpate 
-                if(sameLength && typeof item !== "object" &&  typeof item == typeof comparison.toRemove[index][1]){
-                    //update only the first element
-
-                    console.log("stringupdate", item , key, )
-                    const obj = loopNodes.get(comparison.toRemove[index][0])
-                    //update the object
-                    afterUpdate.push(()=> loopNodes.set(key, obj))
-                    const newObj = inLoop ? createFragment(holders):document.createDocumentFragment()
-
-                    newObj.append(...obj.nodes)
-                    obj.key = key
-                    obj.item = item
-
-                
-                    newUpdate[key] = newObj
-                    
-
-                    return 
-
-                }
+          
                 //set obj before update 
                 const obj = { key, item}
                 const childCtx = this.createChildContext({path, obj,ctx, loopKey, loopIndex})
