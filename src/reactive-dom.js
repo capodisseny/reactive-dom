@@ -577,7 +577,6 @@ function reactive(obj, callbacks = [],  parent,key,  origin){
   const effectStack = []
  class ReactiveHandler{
 
-    
     static handlers = []
     
     static queue = []
