@@ -172,7 +172,7 @@
         },
         getValue({expression}, data){
 
-            let [ loopKey, loopIndex, path ] = expression
+            const [ loopKey, loopIndex, path ] = expression
 
             return get(data, path)
         
@@ -240,7 +240,12 @@
 
              const oneJob = jobs.length === 1?jobs[0]:false
 
-             if(oneJob =="keep") return
+             if(oneJob =="keep") {
+          
+                return
+             }
+
+             debugger
 
              //TODO: UPDATE NODES EACH TIME to overwrite the context
              // just update new nodes
@@ -537,6 +542,16 @@ const interceptors = {
             return this.target
         }
     },
+    __parent:{
+        set(target, k, v){
+            return this.parent = v
+        }
+    },
+    __key:{
+        set(target, k, v){
+            return this.key = v
+        }
+    }
     
   
  }
@@ -551,8 +566,7 @@ function reactive(obj, callbacks = [],  parent,key,  origin){
        
         obj.__parent  = parent
         obj.__key = key
- 
-        debugger
+
          return obj
  
      }
@@ -680,12 +694,15 @@ function reactive(obj, callbacks = [],  parent,key,  origin){
     runNextUpdate(effect, observingProps = this.nextUpdate){
 
         if(!observingProps)debugger
-        Object.keys(observingProps).forEach((key)=>{
 
+ 
+        Object.keys(observingProps).forEach((key)=>{
+            if(!observingProps[key])return 
             if(typeof effect == "function"){
                 effect(this.nextUpdate[key], this)
                 return 
             }
+
 
             effect.runWithPayload(this.nextUpdate[key], this)
         })
@@ -833,8 +850,13 @@ function reactive(obj, callbacks = [],  parent,key,  origin){
          target[key] = value
 
         //has no much difference on performance
-        //    if(Array.isArray(target) && key !== "length") return true
+        //but it creates so many updates, is better just to send the updat eon the length
+        //but with mutations like reverse, sort, etc, I need to send the update
+        //just check if is queued
+        if(Array.isArray(target) && this.nextUpdate) {
 
+            return true
+        }
         console.log("queueeeinggg", target, key, value)
         this.queueMutation({type:"set", target, key,oldKey, value, oldValue, origin:this.origin})
         
@@ -843,8 +865,7 @@ function reactive(obj, callbacks = [],  parent,key,  origin){
     deleteProperty(target, key) {
         if (key in target) {
 
-            
-            
+                    
             const oldValue = target[key]
             let oldKey 
             if(Array.isArray(target)){

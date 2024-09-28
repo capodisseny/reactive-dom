@@ -1,8 +1,11 @@
 
-<!-- <script src="http://192.168.1.35:8082/out.js"  ></script> -->
+<!-- <script src="http://127.0.0.1:8081/out.js"  ></script> -->
 <script src="reactive-dom.js"  ></script>
+<!-- <link rel="stylesheet" href="https://unpkg.com/tachyons@4.12.0/css/tachyons.min.css"/> -->
 <!-- <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script> -->
 <!-- <script src="//unpkg.com/alpinejs" defer></script> -->
+
+<!-- <link rel="stylesheet" href="https://unpkg.com/mvp.css"> -->
 
 
 <div >
@@ -32,9 +35,9 @@
             <ul s-show="{{tasks}}"  style="list-style:auto">
 
         
-                <template s-loop="{{item,i in list}}" >
+                <!-- <template s-loop="{{item,i in list}}" >
                     <input  value="{{item}}" type="text" data-id="la" > {{item}}
-                </template>
+                </template> -->
 
        
                 <div>some content</div>
@@ -43,7 +46,7 @@
                 <!-- {{(attrs? attrs.style: "")}} -->
                 <template s-loop="{{task,i in tasks}}" >
     
-                     <li data-task-id="{{i}}"  s-bind="{{attrs}}" some-prop="{{i}}"> 
+                     <li data-task-id="{{i}}"   s-bind="{{attrs}}" some-prop="{{i}}"> 
                      
                         {{i}}  {{task.name}}
                         <!-- {{tasks.0.name}}
