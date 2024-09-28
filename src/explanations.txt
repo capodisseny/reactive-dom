@@ -202,3 +202,18 @@ while(){
 
 
 initializeNodeWithRef(templateChild, child, context )
+
+
+
+
+#invertedDeep
+When running a deep effect we need a wayt to know the deepness of the triggered update 
+relative to the parent handler effect
+we can build  a inverted deep from the target to the parent as we only have the deepest point
+So the effect will run if effect.deep >= update deep
+handler     6
+    handler     5
+        handler     4
+            handler     2  
+                handler     2  
+                    handler     1 deepest point 

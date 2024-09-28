@@ -538,27 +538,25 @@ const interceptors = {
         }
     },
     
-    __setEffect:{
-        set(target, key, value){
-           
-            if(this.effects.has(value)) return  true
-            
-            this.effects.add(value)
-
-      
-            return true
-        }
-    }
   
  }
  
 
 
-function reactive(obj, callbacks = [],  parents, origin){
+function reactive(obj, callbacks = [],  parent,key,  origin){
 
     if(typeof obj !== "object") return obj
 
-    if(isReactive(obj)) return obj
+    if(isReactive(obj)) {
+       
+        obj.__parent  = parent
+        obj.__key = key
+ 
+        debugger
+         return obj
+ 
+     }
+ 
 
     let current =  proxies.reactive.get(obj)
 
@@ -566,7 +564,7 @@ function reactive(obj, callbacks = [],  parents, origin){
             return current
     }
 
-    let handler =   new ReactiveHandler({target:obj, parents, origin:origin || obj,callbacks })
+    let handler =   new ReactiveHandler({target:obj, parent,key, origin:origin || obj,callbacks })
     let proxy =  new Proxy(obj, handler)
 
     handler.proxy = proxy
@@ -595,25 +593,106 @@ function reactive(obj, callbacks = [],  parents, origin){
 
         this.queue = []
 
-        this.parents = []
+        //instead of an array of parents just pass the 
+        this.parent = options.parent
+        this.key = options.key
 
         this.deepEffects  = new Set()
 
-        // Effect.eventTarget.addEventListener("deepEffect", (e)=>{
-        //     console.log("deep", e.detail)
-        // })
-
-        // this.callbacks = options.callbacks 
         
         if(options.callbacks){
             this.addDeepEffect(options.callbacks)
         }
-        if(options.parents) this.parents.push(...options.parents)
-        
 
+    
         this.constructor.handlersByObject.set(this.target, this)
     }
+  
+    //use the handler to run the logic, since the handler has control on the time and data to update
+    runEffect(effect, depth ){
 
+        if(effect.ran) return
+        nextTick(()=> effect.ran = false)//setTimeout(()=> effect.ran = false)
+
+        
+        const isFunction = typeof effect == "function" 
+        const deep = isFunction?true:effect.deep
+        if(depth && deep){
+     
+            //check depth
+            if( deep !== true && depth > deep)  return
+
+            this.runNextUpdate(effect)            
+
+        }
+        //without depth only run the obersving props
+        if(!depth){
+
+            const observingProps = effect.observing.get( this)
+
+            this.runNextUpdate(effect, observingProps)
+
+        }
+  
+
+       
+    }
+
+    runDeep(){
+
+            //generate an inverted deep   // src/explanations.txt #invertedDeep
+            let deep = 1
+            let current = this
+            const parents = []
+    
+            console.log("hadn", this, this.nextUpdate)
+            // let path = []
+            let path = ""
+            while(current){
+
+                if(current.key){
+                    // path.unshift(current.key)
+                    path = `${current.key}.${path}`
+                }
+                
+                parents.push([current, deep, path])
+                current = current.parent
+                deep++
+            }
+
+            console.log("parents", parents)
+            //run first main parent effect
+            parents.reverse()
+    
+            parents.forEach(([handler, depth, path])=>{
+
+                const payload = {path}
+                console.log(payload)
+              
+                handler.deepEffects.forEach(effect=>{
+
+                
+                    this.runEffect(effect, depth)
+              
+                })
+            })
+    }
+
+    runNextUpdate(effect, observingProps = this.nextUpdate){
+
+        if(!observingProps)debugger
+        Object.keys(observingProps).forEach((key)=>{
+
+            if(typeof effect == "function"){
+                effect(this.nextUpdate[key], this)
+                return 
+            }
+
+            effect.runWithPayload(this.nextUpdate[key], this)
+        })
+
+
+    }
 
     addDeepEffect(deepEffect){
         
@@ -649,7 +728,7 @@ function reactive(obj, callbacks = [],  parents, origin){
 
     static getHandler(obj){
 
-       return  this.handlersByObject.get(obj)
+       return  this.handlersByObject.get(toRaw(obj))
     }
 
     addEffect(effect, key, target){
@@ -688,7 +767,7 @@ function reactive(obj, callbacks = [],  parents, origin){
 
     
         if(typeof value === "object"){
-            return reactive(value, false, [this, ...this.parents] ,this.origin )
+            return reactive(value, false, this ,key, this.origin,  )
         }
 
    
@@ -757,7 +836,7 @@ function reactive(obj, callbacks = [],  parents, origin){
         //has no much difference on performance
         //    if(Array.isArray(target) && key !== "length") return true
 
-      
+        console.log("queueeeinggg", target, key, value)
         this.queueMutation({type:"set", target, key,oldKey, value, oldValue, origin:this.origin})
         
         return true
@@ -785,39 +864,24 @@ function reactive(obj, callbacks = [],  parents, origin){
 
     triggerUpdate(){
 
-      //handler deep effects
+        // TODO: I think that I can merge all this in to the same funtions, 
+        // I don't need deepEffects and effects, just one Set of effects
 
-      console.log("updattee", this)
-         const eventTarget = Effect.eventTarget
-        const event = new CustomEvent("deepEffect", {detail:{
-            handler:this,
-            target:this.target, 
-            parents:[this, ...this.parents]
-            }})
-            eventTarget.dispatchEvent(event)
-    
+        //run deep effects
+        this.runDeep()
 
-       //handle effect
+       //handle own effects
         this.effects.forEach(effect=>{
 
 
-            //skip effects already ran
-            if(effect.ran) return
-            if(typeof effect == "function"){
-        
-                 effect(this.nextUpdate)
-                 effect.ran = true
-                 nextTick(()=>effect.ran = false)
+            this.runEffect(effect)
 
-            }
-
-    
-            effect.updateWithHandler(this)
+            // effect.updateWithHandler(this)
            
             
         })
        
-        this.nextUpate = false
+        this.nextUpdate = false
     }
 
     static runUpdates(){
@@ -849,7 +913,13 @@ function reactive(obj, callbacks = [],  parents, origin){
 
         //prepare set properties changes in this object
         this.nextUpdate = this.nextUpdate || {}
+        //  new Proxy({}, {set(t,k,v){
+        //     if(k == "more") debugger
+        //     return t[k] = v
+        // }})
 
+
+        console.log("neewww", payload, this)
         // if(Array.isArray(payload.target))debugger
         //save payload in an object, so last value update is triggered only
         this.nextUpdate[payload.key] = payload
@@ -881,6 +951,11 @@ function reactive(obj, callbacks = [],  parents, origin){
                 ReactiveHandler.runUpdates()
               })
          
+        }else{
+
+            console.warn("is this mutation registering", payload)
+
+            // debugger
         }
     }
 
@@ -927,48 +1002,20 @@ function reactive(obj, callbacks = [],  parents, origin){
     static eventTarget = new EventTarget()
     static observingTarget = new WeakMap()
 
-    static _ = (()=>{
-
-        //Deep or one level target observing
-        this.eventTarget.addEventListener("deepEffect", (e)=>{
-
-            const data = e.detail
-            const {target, parents, handler} = data
-
-        // console.log("running deep effect", data)
-            let deep = 0
-            parents.forEach(parent=>{
-                deep++
-                parent.deepEffects.forEach(effect=>{
-                    if(typeof effect == "function"){
-
-                        effect(handler.nextUpdate)
-                        return 
-                    }
-                    if(!effect.deep) return
-                    if(effect.deep !== true && deep > effect.deep) return
-               
-                    effect.updateWithHandler(handler, true)
-                })
-            })
-       
-        })
-    })()
-
-    // static getTargetObservers(target){
-
-    //     return this.observingTarget.get(toRaw(target))
-    // }
     static setTargetObserver(effect, target){
 
         target = toRaw(target)
-        // let observers = this.observingTarget.get(target)
 
        let handler =  ReactiveHandler.getHandler(target)
 
-       if(effect.deep){
+       if(handler){
 
+            if(typeof effect == "function")debugger
             handler.addDeepEffect(effect)
+            
+       }else{
+
+        console.warn("no handler found", target)
        }
       
   
@@ -980,7 +1027,7 @@ function reactive(obj, callbacks = [],  parents, origin){
         this.source = source
 
         if(typeof source == "object"){
-
+            
             this.deep = 1
             Effect.setTargetObserver(this, source)
         }
@@ -993,7 +1040,7 @@ function reactive(obj, callbacks = [],  parents, origin){
         this.observing = new WeakMap()
 
         //initiliaze the effect
-        let value = this.runEffect({})
+        let value = this.runWithPayload({})
 
 
         //run callback
@@ -1002,24 +1049,18 @@ function reactive(obj, callbacks = [],  parents, origin){
             this.callback.call(undefined, {value})
         }
 
-
-
-
-        this.nextUpate = {}
+        this.nextUpdate = {}
 
     }
 
 
-    runEffect(payload, handler){
+    runWithPayload(payload, handler){
 
-        if(this.ran)return
-
-
+        //the effect can run on multiple payload, since updats are collected 
         let source = this.source
 
         let value 
 
-     
         ReactiveHandler.currentEffect = this
 
         if(typeof source == "function") value = source(payload, handler)
@@ -1028,48 +1069,19 @@ function reactive(obj, callbacks = [],  parents, origin){
          
         //observe result object
        if(this.deep && isReactive(value)){
-
     
             Effect.setTargetObserver(this, value)
        }
 
-    
        ReactiveHandler.currentEffect = false
 
        if(this.callback ){
             this.callback.call(undefined, payload)
         }
-       this.ran = true
 
-       nextTick(()=>{
-            this.ran = false
-        })
        return value
 
     }
-    updateWithHandler( handler, deep){
-        if(this.ran)return
-        
-        const observingProps = this.observing.get( handler)
-
-        if(!observingProps && !deep)return
-
-        //if no observing props, a no target, skip update
-        if(observingProps ) {
-            //loop updated payloads
-            Object.keys(observingProps).forEach((key)=>{
-                if(!handler.nextUpdate.hasOwnProperty(key)) return
-                this.runEffect(handler.nextUpdate[key], handler)
-            })
-
-        }
-
-        if(deep && this.deep) this.runEffect(handler.nextUpdate, handler)
-
-           
-    }
-
-  
    
     observeProp(reactiveHandler, prop){
 
@@ -1512,11 +1524,7 @@ function compileHelpers(root){
             //  nodeUpdateQueue.forEach(([node])=>{
                 
             //  })
-             updateQueue(ctx
-            //     ([node])=>{
-            //     compiledRefs.get(node).runNodeUpdates(node, ctx)
-            //  }
-            )
+             updateQueue(ctx)
             //  compiledRefs.map.forEach(ref=>{
             //     if(ref.inTemplate)return
             //      ref.runNodeUpdates(ref.node, ctx)
