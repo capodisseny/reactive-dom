@@ -170,20 +170,39 @@
             //[m,loopKey, loopIndex,  path]
             return expression.match(/([a-zA-Z]+)(?:\s*,\s*([a-zA-Z]+))?\s+in\s+([a-zA-Z.]+)/).slice(1)
         },
-        getValue({expression}, data){
+        getValue( ctx, expression){
 
             const [ loopKey, loopIndex, path ] = expression
 
-            return get(data, path)
+            return get(ctx.data, path)
         
         },
  
-        createChildContext({path, obj,ctx, loopKey, loopIndex}){
+        createChildContext({path, obj,ctx, loopKey, loopIndex, key}){
+
+
+            let childData = reactive({ 
+                [loopKey]:obj.item, 
+                 [loopIndex]:key,
+          
+            }, (payload)=>{
+
+                // debugger
+            }
+        )
+
+
+           Object.setPrototypeOf(  childData,ctx.data)
+
+                // debugger
+            let childCtx = {data:childData, isLoop:true}
+
+            return childCtx 
             return {data:new Proxy(ctx.data, {
                 get(target, prop){
 
                     if(prop == loopIndex){
-                         return obj.key
+                         return obj.reactive.key
                     }
                     if(prop == loopKey){
                         
@@ -198,6 +217,9 @@
                 },
         
                 set(target, prop, v){
+                    // if(prop == loopIndex){
+                    //     return o.value = v
+                    // }
                     if(prop == loopIndex){
                         return true
                     }
@@ -240,12 +262,8 @@
 
              const oneJob = jobs.length === 1?jobs[0]:false
 
-             if(oneJob =="keep") {
-          
-                return
-             }
-
-             debugger
+             if(oneJob =="keep")  return
+  
 
              //TODO: UPDATE NODES EACH TIME to overwrite the context
              // just update new nodes
@@ -344,9 +362,15 @@
                 if(!obj)debugger
                 newObj.append(...obj.nodes)
 
-                obj.key = key
+                 obj.key = key
+                // obj.reactive.key = key
+                obj.ctx.data[loopIndex] = key
+
+                debugger
+              
+                console.log("update position", obj)
                 //update for the index....
-                  updateNode(newObj, obj.ctx)
+                //  updateNode(newObj, obj.ctx)
                   
                
                 newUpdate[key] = newObj
@@ -359,7 +383,11 @@
           
                 //set obj before update 
                 const obj = { key, item}
-                const childCtx = this.createChildContext({path, obj,ctx, loopKey, loopIndex})
+                obj.reactive = reactive(obj, (payload)=>{
+                    console.log("update objjjj",payload,  obj)
+                    // debugger
+                })
+                const childCtx = this.createChildContext({path, obj,ctx, loopKey, loopIndex, key})
         
           
                 afterUpdate.push(()=> loopNodes.set(key, obj))
@@ -544,6 +572,7 @@ const interceptors = {
     },
     __parent:{
         set(target, k, v){
+
             return this.parent = v
         }
     },
@@ -561,6 +590,7 @@ const interceptors = {
 function reactive(obj, callbacks = [],  parent,key,  origin){
 
     if(typeof obj !== "object") return obj
+    if(!obj)return  
 
     if(isReactive(obj)) {
        
@@ -617,12 +647,13 @@ function reactive(obj, callbacks = [],  parent,key,  origin){
             this.addDeepEffect(options.callbacks)
         }
 
+        if(typeof this.target != "object")debugger
     
         this.constructor.handlersByObject.set(this.target, this)
     }
   
     //use the handler to run the logic, since the handler has control on the time and data to update
-    runEffect(effect, depth ){
+    runEffect(effect, depth , payload){
 
         if(effect.ran) return
         nextTick(()=> effect.ran = false)//setTimeout(()=> effect.ran = false)
@@ -635,7 +666,7 @@ function reactive(obj, callbacks = [],  parent,key,  origin){
             //check depth
             if( deep !== true && depth > deep)  return
 
-            this.runNextUpdate(effect)            
+            this.runNextUpdate(effect, depth, false, payload)            
 
         }
         //without depth only run the obersving props
@@ -643,7 +674,7 @@ function reactive(obj, callbacks = [],  parent,key,  origin){
 
             const observingProps = effect.observing.get( this)
 
-            this.runNextUpdate(effect, observingProps)
+            this.runNextUpdate(effect, 0, observingProps, payload)
 
         }
   
@@ -660,12 +691,13 @@ function reactive(obj, callbacks = [],  parent,key,  origin){
     
             console.log("hadn", this, this.nextUpdate)
             // let path = []
-            let path = ""
+            let path = false
             while(current){
 
                 if(current.key){
                     // path.unshift(current.key)
-                    path = `${current.key}.${path}`
+                    if(!path ) path = current.key
+                    else path = `${current.key}.${path}`
                 }
                 
                 parents.push([current, deep, path])
@@ -679,32 +711,38 @@ function reactive(obj, callbacks = [],  parent,key,  origin){
     
             parents.forEach(([handler, depth, path])=>{
 
-                const payload = {path}
-                console.log(payload)
-              
+                const payload = {path, sourceTarget:handler.target}
+                
                 handler.deepEffects.forEach(effect=>{
 
-                
-                    this.runEffect(effect, depth)
+                    this.runEffect(effect, depth, payload)
               
                 })
             })
     }
 
-    runNextUpdate(effect, observingProps = this.nextUpdate){
+    runNextUpdate(effect, depth,observingProps , payload ){
 
-        if(!observingProps)debugger
-
+     
+        if(!observingProps){
+            observingProps = this.nextUpdate
+        }
  
+        
         Object.keys(observingProps).forEach((key)=>{
+
             if(!observingProps[key])return 
+            if(!this.nextUpdate.hasOwnProperty(key)) return 
+
+            // const payload = depth?this.target: this.nextUpdate[key]
+            if(!payload) payload = this.nextUpdate[key]
+            else Object.assign(payload, this.nextUpdate[key])
+
             if(typeof effect == "function"){
-                effect(this.nextUpdate[key], this)
+                effect(payload, this)
                 return 
             }
-
-
-            effect.runWithPayload(this.nextUpdate[key], this)
+            effect.runWithPayload(payload, this)
         })
 
 
@@ -716,6 +754,7 @@ function reactive(obj, callbacks = [],  parent,key,  origin){
         const deepEffects = this.deepEffects
         if(typeof deepEffect  == "function" || deepEffect instanceof Effect){
         
+            // if(deepEffect.toString().includes("update child")) debugger
             deepEffects.add(deepEffect)
 
         }
@@ -775,6 +814,8 @@ function reactive(obj, callbacks = [],  parent,key,  origin){
 
         // if(Array.isArray(target) && target.length == 3) debugger
         if( currentEffect){
+
+            // if(key == "i") debugger
                 // if(key == "style" &&  this.origin.attrs)debugger
              this.addEffect(currentEffect, key)
             // this.addDeepEffect(currentEffect)
@@ -808,43 +849,13 @@ function reactive(obj, callbacks = [],  parent,key,  origin){
     // }
     set(target, key, value, reciever){
 
-        //trigger update
-       
-
+  
         if(interceptors[key]?.["set"]){
             return interceptors[key]["set"].call(this,target, key, value, reciever,  )
         }
 
 
-        let oldKey 
-
         const oldValue = target[key]
-
-        if(Array.isArray(target)){
-        
-            // if (key === 'length') {
-            //     // Handle changes to the array's length, especially when removing elements
-            //     updateViewCallback('lengthChange', target);
-            // }
-              
-            //   // Handle direct changes to array elements (e.g., arr[2] = 'new value')
-            //   const oldValue = target[key];
-            //   target[key] = value;
-            // if (oldValue !== value) {
-            //     updateViewCallback('elementChange', target, key);
-            // }
-
-
-         
-            // if(Array.isArray(target)){
-            //   oldKey = target.indexOf(oldValue)
-            // }
-
-            // debugger
-
-          
-        }
-
 
         // Reflect.set(target, key, value)
          target[key] = value
@@ -858,7 +869,7 @@ function reactive(obj, callbacks = [],  parent,key,  origin){
             return true
         }
         console.log("queueeeinggg", target, key, value)
-        this.queueMutation({type:"set", target, key,oldKey, value, oldValue, origin:this.origin})
+        this.queueMutation({type:"set", target, key, value, oldValue, origin:this.origin})
         
         return true
     }
@@ -1006,7 +1017,7 @@ function reactive(obj, callbacks = [],  parent,key,  origin){
     options = {
         ...(options||{})
     }
-     new Effect(callback, options)
+     return new Effect(callback, options)
 
  }
 
@@ -1060,7 +1071,7 @@ function reactive(obj, callbacks = [],  parent,key,  origin){
         this.observing = new WeakMap()
 
         //initiliaze the effect
-        let value = this.runWithPayload({})
+        let value = this.run()
 
 
         //run callback
@@ -1073,11 +1084,10 @@ function reactive(obj, callbacks = [],  parent,key,  origin){
 
     }
 
+    run(payload = {}, handler){
 
-    runWithPayload(payload, handler){
-
-        //the effect can run on multiple payload, since updats are collected 
-        let source = this.source
+         //the effect can run on multiple payload, since updats are collected 
+        const source = this.source
 
         let value 
 
@@ -1095,11 +1105,16 @@ function reactive(obj, callbacks = [],  parent,key,  origin){
 
        ReactiveHandler.currentEffect = false
 
-       if(this.callback ){
+
+    }
+
+    runWithPayload(payload, handler){
+
+        this.run(payload, handler )
+
+       if(  this.callback ){
             this.callback.call(undefined, payload)
         }
-
-       return value
 
     }
    
@@ -1137,7 +1152,7 @@ function reactive(obj, callbacks = [],  parent,key,  origin){
     } 
     
 
-    effect(source, options)
+   return effect(source, options)
     
     
  }
@@ -1204,8 +1219,6 @@ function reactive(obj, callbacks = [],  parent,key,  origin){
             
         Manager.nextTickQueue.push(callback)
 
-      
- 
     }
 
 
@@ -1247,9 +1260,6 @@ function reactive(obj, callbacks = [],  parent,key,  origin){
         return val
 
     }
-
-
-
 
 
 
@@ -1321,13 +1331,13 @@ const updateNodesQueue = new WeakMap()
 
 let idCounter = 0;
 
-
 const nodeUpdateQueue = []
 function registerNodeUpdate(template, node, ctx){
 
     nodeUpdateQueue.push([template, node, ctx])
 
 }
+
 let runningQueue = false
 function updateQueue(ctx){
     
@@ -1355,28 +1365,18 @@ function updateQueue(ctx){
 }
 function compileHelper(node, isTemplate){
 
-
        
         if( node.__sCompiled ) return compiledRefs.get(node)
          //save compiled prop for faster access
 
-        let  nodeRef = {
-            updaters:{}
-        }
-      
-    
         //set the id 
         if(node.dataset) {
             // node.dataset.__sId = nodeRef.id
             // node.setAttribute("__sId", nodeRef.id)
         }
-    
-        let setNode = false
 
        
         if(node.tagName !== "TEMPLATE") node.__inTemplate = isTemplate
-
-
 
         //compile text nodes
         if ( node.nodeType == node.TEXT_NODE && node.textContent.includes("{{") ) {
@@ -1392,7 +1392,7 @@ function compileHelper(node, isTemplate){
                     node.__inTemplate = isTemplate
                     
                     const helper =  new NodeHelper(node )
-                    helper.addUpdate("text", {expression:child.path})
+                    helper.addUpdate("text", child.path)
 
                     return node
                 }
@@ -1429,33 +1429,33 @@ function compileHelper(node, isTemplate){
                         
                         setNode = true
 
-                        helper.addUpdate(directiveKey, {expression:value.slice(2, -2)})
+                        helper.addUpdate(directiveKey, value.slice(2, -2))
                         
                         node.removeAttribute(key)
                     }
                     return 
                 }
 
+
+
                 //EVENTS
                 if(events[key]){
                     helper = helper || new NodeHelper(node )
+                    
 
-
-                    helper.addUpdate("events", {expression:value, key:key.slice(2) })
-                    // nodeRef.events = nodeRef.events || {}
-                    // nodeRef.events[key.slice(2)] = value
+                    helper.addUpdate("events", value, {key:key.slice(2) })
                     
                     node.removeAttribute(key)
                     return 
                 }
 
+
                 //ATTRIBUTES
                 if(value.includes("{{")){
                     helper = helper || new NodeHelper(node )
 
-                    helper.addUpdate("attrs", {expression:value.trim().slice(2, -2), key,})
-                    // dynamic =  value.trim().slice(2, -2) || false
-
+                    helper.addUpdate("attrs",value.trim().slice(2, -2),  { key})
+                
            
                 }
                 
@@ -1496,8 +1496,6 @@ function compileHelpers(root){
     fastTraverseDOM(root, (node)=>{
       
 
-         
-
         if(node.parentNode?.nodeType === 11 || node.textContent =="template" ) isTemplate = node.parentNode
         if(node.previousSibling?.tagName == "TEMPLATE" || node.previousSibling?.textContent =="template") isTemplate = false
    
@@ -1530,75 +1528,16 @@ function compileHelpers(root){
         
 
             let {show, text, loop,attrs } =  NodeUpdater.updaters
-             //update attrs
-     
-             
-             // //show
-             // NodeUpdater.updaters
-     
-             // Object.values(NodeUpdater.updaters).forEach(updater=>{
-             //     updater.runUpdate(ctx)
-             // })
-     
-            //  debugger
-            //  nodeUpdateQueue.forEach(([node])=>{
-                
-            //  })
+       
+
              updateQueue(ctx)
-            //  compiledRefs.map.forEach(ref=>{
-            //     if(ref.inTemplate)return
-            //      ref.runNodeUpdates(ref.node, ctx)
-            //  })
-     
-     
-     
-             // show.runUpdate(ctx)
-            
-     
-             // loop.runUpdate(ctx)
-     
-             // attrs.runUpdate(ctx)
-     
-     
-             // text.runUpdate(ctx)
-     
-             //event listeners
+       
              
            }
 
 
-/**
- * 
 
-
-{
-    childNodes:[
-        Node{
-            childNodes:[
-                 Node{
-                 },
-                 Node{
-                 }
-            ]
-        }
-        NextNode{
-
-        }
-    ]
-}
-
- */
-
-
-//this will create a an stack like this
-
-/**
- * 
- * 
- * 
- */
-
-//generates a stack like  stack = [child1, child2, child3, parent]
+           //generates a stack like  stack = [child1, child2, child3, parent]
 
 function fastTraverseDOM(root, processNode) {
 
@@ -1700,7 +1639,6 @@ function fastParse(str) {
 
 function createComponent(template){
 
-    
 
   customElements.define(
     "reactive-template",
@@ -1824,8 +1762,7 @@ function  cloneDeep(template, callback, ){
         if(isTemplate){
             debugger
         };
-        
-
+    
 
         for(let i = childNodes?.length - 1; i >= 0; i--){
                        
@@ -1840,11 +1777,6 @@ function  cloneDeep(template, callback, ){
 
 
 
-
-
-
-
-
       class NodeHelper{
 
         // directives = false
@@ -1853,39 +1785,25 @@ function  cloneDeep(template, callback, ){
         // textContent = false
 
         node = false
-        updates = []
-
 
         constructor(node, updaters = {}){
 
-            const validOptions = [ "updaters"]
-
-
-   
             this.id = `id-${idCounter++}`
          
             this.node = node
-
+            this.updates = new Set();
 
             if(node.inTemplate) this.inTemplate = true
             else if(node.tagName !== "TEMPLATE") {
 
                 registerNodeUpdate(node)
             }
-            // if(updaters){
-            //     Object.entries(updaters).forEach(([id, updater])=>{
-            //         this.addUpdate(id, updater)
-            //     })
-            // }
 
             compiledRefs.set(node, this)
             node.__sCompiled 
-            // Object.keys(options).forEach(key => {
-            //     if(validOptions.includes(key)) this[key] = options[key]
-            // });
 
         }
-        addUpdate(id, config){
+        addUpdate(id, expression, config){
 
             let updater = NodeUpdater.getInstance(id)
 
@@ -1893,30 +1811,30 @@ function  cloneDeep(template, callback, ){
                 console.warn(`Updater ${id} not found`)
                 return
             }
+    
+            const update =  new NodeUpdate(updater, expression, config)
 
+            update.helper = this
 
-            const payload =  updater.registerHelper(this, config)
-     
-            this.updates.push({updater, payload})
+            this.updates.add(update)
+
         }
         runNodeUpdates(node, ctx, force){
     
             if(!node.__sId) node.__sId = this.id
-            Object.values(this.updates).forEach(update=>{
+            this.updates.forEach(update=>{
                
                 if(force){
-                    update.updater.forceUpdate(node, update.payload ,ctx )
+                    update.forceUpdate(node ,ctx )
                 }else{
                    
-                    update.updater.runNodeUpdate(node, update.payload ,ctx, update )
+                    update.setupNode(node, ctx)
+
                 }
             })
 
         }
     
-      
-
-
       }
 
       /**
@@ -1930,55 +1848,34 @@ function  cloneDeep(template, callback, ){
        */
 
     class NodeUpdater{
-        priority = 10
-
         static updaters = {}
+        priority = 10
+ 
         constructor(options){
             this.constructor.updaters[options.id] = this
 
             this.updateFunction = options.updateFunction
 
-            let validOptions = ["getValue", "resolveExpression", "effect", "type", "priority", "id"]
+            // let validOptions = ["getValue", "resolveExpression", "effect", "type", "priority", "id"]
             Object.keys(options).forEach(key => {
                 // if(!validOptions.includes(key)) return
                       this[key] = options[key]
  
             });
         }
+
         static getInstance(id){
            return  this.updaters[id] 
         }
-        type = false // text or attribute or false //with false you handle the 
-        init(ctx){
-
-        }
-    
-        
+           
         updateFunction(){
 
             console.warn("Update function not created for this nodeUpdater")
             
         }
         
-    
-  
-       
-   
         nodes = new WeakMap()
-        registerHelper(helper, payload){
-
-            const[exp, debug] = payload.expression.split(":")
-            payload.expression = exp
-            payload.debug = debug
-
-            this.registerExpression( exp )
-            // this.nodes.push({node, payload})
-
-            const raw = exp
-            const expression = this.expressions[raw]
-
-            return {...payload, expression, raw, helper}
-        }
+    
         getNodeObject(node){
             if(this.nodes.has(node)){
                 return this.nodes.get(node)
@@ -1988,27 +1885,7 @@ function  cloneDeep(template, callback, ){
             return obj
         }
         
-        getUpdatePayload(){
-            return {
-                ctx:this.ctx,
-            }
-        }
-        runUpdate(ctx){
 
-            this.nodes.forEach(({node, payload})=>{
-
-                 this.runNodeUpdate(node, payload, ctx)
-            })
-        }
-
-        effect(){
-            return this.getValue(...arguments)
-        }
-        getValue({expression,} , data){
-            
-            return get(data, expression)
-        }
-      
         getPropertyTarget(obj, prop){
 
             while(!obj.hasOwnProperty(prop)){
@@ -2021,132 +1898,171 @@ function  cloneDeep(template, callback, ){
             return obj
         }
 
-        getValueWithPayload( payload, ctx){
-            
-            let expression = payload.expression || payload
-            const raw = expression
-            expression = this.expressions[expression]
+        resolveExpression(expression){
 
-            return this.getValue(payload, ctx.data)
-        }
+            expression = expression.trim()
 
-        expressions = {}
-        registerExpression( expression){
+            if(expression.startsWith("(")){
 
-            if(this.expressions[expression] ) return 
-            
-            let expressionValue = expression
-            if(this.resolveExpression) expressionValue = this.resolveExpression(expression)
-
-            this.expressions[expression] = expressionValue
-
-        }
-
-        forceUpdate(node, payload, ctx){
-
-            if(node.__inTemplate) {                    
-               return;
+                return new Function("return " + expression)
             }
-                     
-           const value = this.getValueWithPayload( payload, ctx)
-                                      
-           this.updateFunction(node, { value} ,payload, ctx)
 
-
+            return expression
         }
-
-        runNodeUpdate(node, payload, ctx, originalUpdate){
-
-                 if(node.__inTemplate) {                    
-                    return;
-                 }
-                         
-                const value = this.getValueWithPayload( payload, ctx)
-                 
-                //filter by original update object and node to avoid adding new updates
-                let nodeObj =this.getNodeObject(node)
-
-                if(nodeObj.originalUpdate) {
-
-                    return
-                } 
-
-                nodeObj.originalUpdate = originalUpdate
-
-
-                //skip the ones that just need one update
-                if(!this.effect)  {
-                    this.updateFunction(node, {value}, payload, ctx)
-                    return
-                }
-                
-                //SAVE update BY ORIGINAL UPDATE
-                const updatesByOriginal = this._effectUpdates = this._effectUpdates || new WeakMap()
-
-            
-                let createEffect = !updatesByOriginal.get(originalUpdate)
-
-                let updates = updatesByOriginal.get(originalUpdate) 
-
-                if(!updates){
-                    updates = []
-                    updatesByOriginal.set(originalUpdate, updates)
-                }
-
-
-                // if(node.nodeType == node.TEXT_NODE && raw == "attrs") debugger
-
-    
-                updates.push({payload, node, ctx})
-                
-                this.updateFunction(node, {value}, payload, ctx)
-                if(!createEffect) {
-          
-                //    if(raw.includes("task,")) console.log("skipping effect",raw, node)
-                    return 
-                }
-  
-
-                if(payload.expression.includes(","))debugger
         
-                if(!this.effect)debugger
-   
-                     watch( 
-                        //    this.effect({expression, data:ctx.data})
-                             ()=>{
-                             
-                                return this.getValueWithPayload( payload, ctx)
-                             }
-                            //  ()=>this.updateFunction(node, {value}, payload, ctx)
-                        
-                        , (updatePayload)=>{
-                                      
-                         
-                            const updates = updatesByOriginal.get(originalUpdate)
-                            
-                            //IMPORTANT: updates only sould be larger than one  for loops
-                            //so basically this is a loop feature and I can check index
-                            //to skip other updates
-                            //run mulitple updates of the same nodeHelper update with the same effect
-                            updates.forEach(({node, payload, ctx}, index)=>{
-                              
-                                // if(updates.length > 1 && index != updatePayload.key) return
-                                const value = this.getValueWithPayload( payload, ctx)
-                                                       
-                                if(payload.debug) debugger
-
-                                this.updateFunction(node, {...updatePayload, value} ,payload, ctx)
-                            })
-                            
-                    },{deep:this.deep ?? true, updater:this})
-          
-
-                   
-            
-
-        }
 
       }
+
+
+
+
+  class Context {
+   
+    
+    constructor(ctx ){
+    
+
+
+    }
+
+}
+
+
+
+
+class NodeUpdate {
+    constructor( updater, rawExpression, config ){
+    
+       
+        this.ctxs = new Set()
+        this.ctxNodes = new WeakMap()
+        this.updater = updater
+
+        const[exp, debug] = rawExpression.split(":")
+
+        this.debug = debug
+        this.raw = exp   
+       
+        if(config) this.config = config
+
+        this.expression = updater.resolveExpression(exp)
+
+    }
+
+    forceUpdate(node, ctx){
+
+        //no rerun update on ones without effect
+        if(this.updater.effect === false) return
+
+
+        if(node.__inTemplate) {                    
+           return;
+        }
+        const updater = this.updater
+                 
+       const value = this.getValue(ctx)
+                        
+       if(!updater.updateFunction)debugger
+       
+        updater.updateFunction(node, { value} ,this, ctx)
+
+
+    }
+
+    getValue(ctx){
+
+       
+        if( this.updater.getValue) return this.updater.getValue(ctx, this.expression)
+
+
+        if(typeof this.expression == "function"){
+
+            return this.expression.call(ctx.data)
+        }
+
+
+        return get(ctx.data, this.expression)
+       
+     
+    }
+
+    //steup the effect of that expression for each context
+    setupEffect( ctx){
+
+    
+
+        if(this.ctxNodes.has(ctx)) return  this.ctxNodes.get(ctx)
+
+        const nodes = new Set()
+        this.ctxNodes.set(ctx, nodes)
+
+        if(this.updater.effect === false) return nodes
+
+
+        this.effect = watch(
+                ()=>this.getValue(ctx),
+
+                (payload)=>{
+
+                //   if(this.expression == "attrs")debugger
+                    //update each node
+                    // this.ctxs.forEach(ctx=>{
+                       
+                    // })
+                    this.ctxNodes.get(ctx).forEach((node)=>{
+                        const value = this.getValue(ctx)
+                        //do not use effect.lastValue, since effect is shared across the ctxs
+
+                        this.updater.updateFunction(node, {value}, this, ctx)
+
+                    })
+                },
+                {
+                    deep:this.updater.deep ?? true, 
+                    updater:this.updater,   
+                }
+            
+        )
+
+        return nodes
+
+    }
+    getCtxNodes(ctx){
+
+        if(this.ctxNodes.has(ctx)) return  this.ctxNodes.get(ctx)
+        
+        const nodes = new Set()
+        this.ctxNodes.set(ctx, nodes)
+
+        return nodes
+
+    }
+    setupNode(node , ctx){
+
+        const nodes = this.setupEffect(ctx)
+
+        if(nodes.has(node) ) return    
+
+        this.setupEffect(ctx)
+
+        nodes.add(node)
+
+        this.updater.updateFunction(node, {value: this.effect?.lastValue}, this, ctx)
+    
+
+    }
+
+
+
+    removeNode(){
+
+        
+    }
+
+
+
+}
+
 
 
 
@@ -2160,8 +2076,15 @@ function  cloneDeep(template, callback, ){
                 if(node.dataset && node.dataset.la )debugger
                 // value = get(ctx.data, expression)
                 if(value && value.attrs) debugger
-                if(typeof value == "object") value = JSON.stringify(value)
+                // if(typeof expression == "function"){
 
+                //     debugger
+                //     value = value.call(ctx.data)
+                // }
+
+                if(value && typeof value == "object") value = JSON.stringify(value)
+
+   
                 // if(value?.includes && value.includes("{{")){
                 //     value = value.split(/({{.+?}})/g).reduce((c, v)=>{
                 //         if(!v.includes("{{"))return c+v
@@ -2169,7 +2092,11 @@ function  cloneDeep(template, callback, ){
                 //         return c + get(ctx.data, path)
                 //     }, "")
                 // }
+                
+                if(!value && value !== 0) value = ""
+                console.log("updating text", value)
 
+                if(value == undefined) debugger
                 node.textContent = value
             }
       })
@@ -2178,12 +2105,16 @@ function  cloneDeep(template, callback, ){
             
             priority:4,
             id:"attrs",
-            updateFunction(node,{value, oldValue}, { key,expression, }, ctx){
+            updateFunction(node,{value, oldValue}, { config,expression, }, ctx){
 
+                const key = config.key
        
                 // if(value === oldValue)return
                 if(key == "onkeypress")debugger
+                
+
                 node.setAttribute(key, value)
+
                 if(key == "value"){
                      node.value = value
 
@@ -2193,7 +2124,10 @@ function  cloneDeep(template, callback, ){
                         nextTick(()=>{
                             node.addEventListener("input", (e)=>{
                                  console.log(ctx.data, expression, e.target.value)
-                                set(ctx.data, expression , e.target.value)  
+
+                                 const value = getValueByInputType(e.target)
+                                set(ctx.data, expression , value)  
+
                                 nextTick(()=>{
                                     
                                      node.focus()
@@ -2214,8 +2148,24 @@ function  cloneDeep(template, callback, ){
             priority:5,
             id:"events",
             effect:false,
-            updateFunction(node, { value}, { expression, key, }, ctx){
 
+            // setupNode(node, payload, ctx, originalUpdate){
+
+            //     if(node.__inTemplate) {  
+            //         console.warn("klasdjklajsdklan eventntt")                  
+            //         return;
+            //      }
+                      
+            //      this.updateFunction(node, payload, ctx)
+                
+            // },
+            forceUpdate(){
+                //do nothing on an update
+            },
+            updateFunction(node,_,  { expression, config}, ctx){
+
+                if(!config)debugger
+                const key = config.key
                 nextTick(()=>{
                     this.setupEvent(node, key, expression,  ctx)
                 })
@@ -2267,10 +2217,18 @@ function  cloneDeep(template, callback, ){
                 console.warn(`Event ${event} not found`)
                 return  
             } 
+            
+      
         
+
         
-        
-            const fn = this.getEventFunction(value)
+            const fn = value
+
+
+            if(typeof value !== "function"){
+
+                debugger
+            }
         
             nodeRef.eventCallbacks = nodeRef.eventCallbacks || {}
             nodeRef.eventCallbacks[event] = fn
@@ -2287,9 +2245,45 @@ function  cloneDeep(template, callback, ){
         
         
         },
+        resolveExpression(value){
+            let isExpression, isAnonymous,  isNamed, isFunction, caller = "";
+
+            if(!value.startsWith) debugger
+            if(value.startsWith("(")) isAnonymous = true
+            if(value.match(/^[a-zA-Z]/)) isNamed = true
+             if(!value.includes("(")) caller = "(event, node)"
+        
+             let args = ""
+           
+            let stringFn = `this.${value}${caller}`
+            
+           if(isAnonymous){
+        
+                args = value.match(/\{.+\(([^)]+)\)/)?.[1] || ""
+            
+                stringFn =`(${value})(event)`
+            }
+           
+            if(isNamed){
+                args = value.match(/\(([^)]+)\)/)?.[1] || ""
+            }
+        
+        
+            const code =  `
+            
+                let {${args}} = this
+        
+                ${stringFn}   
+            `
+            const  fn = new Function("event",  "node", "ctx", "window" , code )
+        
+            return fn
+        },
         getEventFunction(value){
 
             let isExpression, isAnonymous,  isNamed, isFunction, caller = "";
+
+            if(!value.startsWith) debugger
             if(value.startsWith("(")) isAnonymous = true
             if(value.match(/^[a-zA-Z]/)) isNamed = true
              if(!value.includes("(")) caller = "(event, node)"
@@ -2483,3 +2477,32 @@ function  cloneDeep(template, callback, ){
 
   }
 
+
+
+  function getValueByInputType(input) {
+    const { type, value, checked } = input;
+  
+    switch (type) {
+      case 'number':
+        // Convert value to number (or NaN if the value is empty)
+        return value === '' ? null : +value;
+      case 'checkbox':
+        // Return the checked property for checkboxes
+        return checked;
+      case 'radio':
+        // Return the checked property for radio buttons
+        return checked;
+      case 'date':
+        // For date inputs, return the value as a Date object (or null if empty)
+        return value === '' ? null : new Date(value);
+      case 'range':
+        // Range is a number, but it's still returned as a string, so convert to number
+        return value === '' ? null : +value;
+      case 'file':
+        // Return the FileList object for file inputs
+        return input.files;
+      default:
+        // Default case for text, password, email, etc., returns the value as a string
+        return value;
+    }
+  }

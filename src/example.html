@@ -1,12 +1,16 @@
 
 <!-- <script src="http://127.0.0.1:8081/out.js"  ></script> -->
 <script src="reactive-dom.js"  ></script>
-<!-- <link rel="stylesheet" href="https://unpkg.com/tachyons@4.12.0/css/tachyons.min.css"/> -->
-<!-- <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script> -->
+
 <!-- <script src="//unpkg.com/alpinejs" defer></script> -->
 
+<!-- <link rel="stylesheet" href="https://unpkg.com/tachyons@4.12.0/css/tachyons.min.css"/> -->
 <!-- <link rel="stylesheet" href="https://unpkg.com/mvp.css"> -->
-
+<!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css"> -->
+<!-- <link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
+> -->
 
 <div >
 
@@ -22,16 +26,31 @@
             <h2   style="{{attrs.style}}">Code</h2> {{renderingTime}} ms  
             <button  onclick="addRows">Add 1000 rows </button>
             {{rowsToAdd}}
-            <input   value="{{rowsToAdd}}" type="number">
-            <input   value="{{rowsDelete}}" type="number">
-            <input   value="{{rowsAt}}" type="number">
+           <div class="flex grid">
+            {{(this.rowsToAdd + 14)}}
+        
+            <dialog open="" >
+
+                
+             
+                <input   value="{{rowsToAdd}}" type="number">
+                <input   value="{{rowsDelete}}" type="number">
+                <input   value="{{rowsAt}}" type="number">
+            </dialog>
+            <button  onclick="()=>activeTab = !activeTab">Open dialog</button>
+
             <button  onclick="addRows(rowsToAdd)">Add {{rowsToAdd}} at {{rowsAt}} and delete {{rowsDelete}}</button>
 
+
+           </div>
             <h2 s-bind="{{attrs}}">Tasks</h2>
             <div  s-show="{{!input}}">Imput empty</div>
             {{list.0}}
             {{list}}
             <input  value="{{list.0}}" type="text"> 
+
+            <input  value="{{tasks.0.name}}" type="text">
+            <input  value="{{tasks.1.name}}" type="text">
             <ul s-show="{{tasks}}"  style="list-style:auto">
 
         
@@ -41,7 +60,12 @@
 
        
                 <div>some content</div>
-         
+                {{(()=>{
+                    return "Delete  " + this.rowsDelete
+                })()}}
+
+
+                {{rowsDelete}}
            
                 <!-- {{(attrs? attrs.style: "")}} -->
                 <template s-loop="{{task,i in tasks}}" >
@@ -53,7 +77,7 @@
                         tasks count: {{tasks.length}} -->
                         <!-- <input  value="{{i}}" type="text"> -->
                         <!-- <input  value="{{task.name}}" type="text">  -->
-                        <div s-show="{{activeTab}}">
+                        <div s-show="{{activeTab}}" > 
 
                             Show tabsss
                             {{i}}
@@ -83,9 +107,10 @@
             </ul>
 
             {{attrs}}
+
             {{attrs.some.another}}
        
-            <input  value="{{tasks.0.name}}" type="text">
+    
             <input  onkeypress="addTask" value="{{input}}" type="text">
 
             <input  value="{{attrs.style}}" type="text">
@@ -207,6 +232,8 @@
     console.log("data", data)
     data.removeTask = (i, )=>{
 
+
+        debugger
         data.tasks.splice(i, 1)
       
     }
