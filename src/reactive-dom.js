@@ -178,17 +178,16 @@
         
         },
  
-        createChildContext({path, obj,ctx, loopKey, loopIndex, key}){
+        createChildContext({ item,ctx, loopKey, loopIndex, key}){
 
 
             let childData = reactive({ 
-                [loopKey]:obj.item, 
+                [loopKey]:item, 
                  [loopIndex]:key,
-          
-            }, (payload)=>{
+                }, (payload)=>{
 
-                // debugger
-            }
+                    // debugger
+                }
         )
 
 
@@ -198,39 +197,7 @@
             let childCtx = {data:childData, isLoop:true}
 
             return childCtx 
-            return {data:new Proxy(ctx.data, {
-                get(target, prop){
-
-                    if(prop == loopIndex){
-                         return obj.reactive.key
-                    }
-                    if(prop == loopKey){
-                        
-                        const key = obj.key
-                        
-                        const v =  get(target, `${path}.${key}`)
-
-                        return v
-                    }
-                    return Reflect.get(target,prop)
-
-                },
-        
-                set(target, prop, v){
-                    // if(prop == loopIndex){
-                    //     return o.value = v
-                    // }
-                    if(prop == loopIndex){
-                        return true
-                    }
-                    if(prop == loopKey){
-      
-                        return set(target, `${path}.${obj.key}`, v)
-                       
-                    }
-                    return Reflect.set(target,prop, v)
-                }
-            }), isLoop:true}
+         
         },
         updateFunction(node, update, {expression, helper} , ctx){
 
@@ -245,6 +212,8 @@
                 if(oldFragment) holder.append(...oldFragment.childNodes)
                 return holder
             }
+
+
             let template = helper.node.content
 
             if(!node.parentNode)debugger
@@ -255,217 +224,224 @@
             const nodeObj = this.getNodeObject(node)  
             const last = nodeObj.lastLoop ||[]
              console.time("Comparison")
-            const comparison = compare( items,last)
 
+             const loop = Object.values(items)
+            const comparison = myCompare( last, loop, true)
+
+            // const comparison = minimalMovesToTransformArray(last, loop)
             const jobs = comparison.jobs
              console.timeEnd("Comparison")
 
-             const oneJob = jobs.length === 1?jobs[0]:false
+             const indexMap = nodeObj.indexMap = nodeObj.indexMap || new Map()
+            const valueMap = nodeObj.indexValue = nodeObj.indexValue || new Map()
 
-             if(oneJob =="keep")  return
+             const oneJob = jobs.size === 1?[...jobs][0]:false
+
+             this.currentIsNested = this.isNested
+             this.isNested = true
   
-
              //TODO: UPDATE NODES EACH TIME to overwrite the context
              // just update new nodes
              // remove old nodes
              // advantatges:
                 // no need of references and other staff like loopNodes, etc
+
              //TODO: SELECTIVE UPDATE
              // try to find way to add the nodes in the corresponding position
              //cons: 
                 //the unique con of this is that I need to manipulate the DOM
                 //but maybe there is no such operations where there differents indexes...
                 // the most comomn is splice which will delete and add lists of nodes so == one reflow
-   
-
-             const loopNodes = nodeObj.loopValues = nodeObj.loopValues || new Map()
-            // let loopNodes = nodeObj.loopValues = nodeObj.loopValues || []
-                 //clean deleted refences
-            // loopNodes = loopNodes.filter(v=>v)
-            const newUpdate = []
-
-            const holders = []
-            const inLoop = ctx.isLoop
-            const sameLength = ( comparison.toAdd.length == comparison.toRemove.length  
-                && !comparison.toReposition.length 
-              );
-       
-            //skip update when the length is the same and all the values are the same type
-            if(sameLength && comparison.types.length == 1 && comparison.types[0] != "object") return
 
 
-            console.log("proceeed")
+             console.log("UPDATE LOOP", {comparison, indexMap, items,  last, loop})
 
-            const afterUpdate = []
-            comparison.toKeep.forEach(([key, item], index)=>{
-
-                const obj = loopNodes.get(key)
-
-                if(!obj)debugger
-                const newObj = inLoop ? createFragment(holders):document.createDocumentFragment()
-                newObj.append(...obj.nodes)
-
-                newUpdate[key] = newObj
-
-            
-             })
-
-            
-             console.log("UPDATE LOOP", {comparison, loopNodes, items})
-            //remove old
-            comparison.toRemove.forEach(([key, item], index)=>{
-
-
-                // //string udpate 
-                // if(sameLength && typeof item !== "object" &&  typeof item == typeof comparison.toAdd[index][1]){
-                //     return
-                //  }
-
-                const obj = loopNodes.get(key)
-               
-
-                //delete on next, so i have access on the same update
-                 afterUpdate.push(()=> loopNodes.delete(key))
-            
-
-                if(!obj) debugger
-
-                obj.nodes.forEach(node=>node.remove())
-
-             })
-
-
-            //  if(!jobs.includes("add")) {
-
-            //     Object.entries(items).forEach(([key, item])=>{
-            //          const obj = loopNodes.get(key)
-            //         const childCtx = this.createChildContext({path, obj,ctx, loopKey, loopIndex})
-                    
-            //         obj.nodes.forEach(node=>updateNode(node, childCtx))
-            //     })
-            //     console.log("only removed")
-
-            //     afterUpdate.forEach(fn=>fn())
+            // if(jobs.size === 0) {
+            //     console.warn("whyyyyy")
             //     return
-            //  } 
-            
-            //update position
-             comparison.toReposition.forEach(([key, item, oldKey], index)=>{
-
-                
-                const obj = loopNodes.get(oldKey)
-    
-                afterUpdate.push(()=> loopNodes.set(key, obj))
- 
-                const newObj = inLoop ? createFragment(holders):document.createDocumentFragment()
-
-                if(!obj)debugger
-                newObj.append(...obj.nodes)
-
-                 obj.key = key
-                // obj.reactive.key = key
-                obj.ctx.data[loopIndex] = key
-
-                debugger
-              
-                console.log("update position", obj)
-                //update for the index....
-                //  updateNode(newObj, obj.ctx)
-                  
-               
-                newUpdate[key] = newObj
-             })
+            // }
+            const newUpdate = [] 
 
 
-             //add new
-             comparison.toAdd.forEach(([key, item], index)=>{
-                
-          
-                //set obj before update 
-                const obj = { key, item}
-                obj.reactive = reactive(obj, (payload)=>{
-                    console.log("update objjjj",payload,  obj)
-                    // debugger
+         
+
+
+            const groupState = {
+                indexGroup:false,
+                lastInGroup:0
+            }
+
+            comparison.remove.forEach(([index, item])=>{
+                const obj = indexMap.get(index)
+
+                nextTick(()=>{
+                    
+                    obj.nodes.forEach(node=>node.remove())
+                    indexMap.delete(index)
                 })
-                const childCtx = this.createChildContext({path, obj,ctx, loopKey, loopIndex, key})
-        
+
+            })
+
+
+
+            //items that are not moved manually moved becaause are pushed up the array
+            comparison.updated.forEach(( [from,  to, item])=>{
+
+                const obj = indexMap.get(from)
+
+                // debugger
+                 obj.ctx.data[loopIndex] = to
+
+                 nextTick(()=>{
+                     indexMap.set(to, obj)
+                    // obj.ctx.data[loopIndex] = index
+                 })
           
-                afterUpdate.push(()=> loopNodes.set(key, obj))
-               
-                obj.ctx = childCtx
+            })
 
-
-                // faster 100ms //without console around 55ms
-                  let newNode = template.cloneNode(true)
-                  template.childNodes.forEach((child, i)=>{
-                        parallelUpdate(child, newNode.childNodes[i], childCtx)
-                        //i don't know why if I register and run it on the queue 
-                        //doesn't trigger the update on {{task.name}}
-                    //   registerNodeUpdate(child, newNode.childNodes[i], childCtx)
-                  })
+            //items that especified to be moved
+            const entireMove = comparison.move.length == items.length
+         
+            comparison.move.forEach(( [fromIndex,toIndex])=>{
 
     
-                 
-                  //slower: from 100ms to 130ms //without console aroudn 65ms
-                // let newNode = cloneDeep(template, (node, ref, )=>{
-            
-                //     if(node.tagName == "TEMPLATE")debugger
-                //     if(!ref) return   
-                //      ref.runNodeUpdates(node, childCtx)
-        
-                // }, )
-        
-                if(ctx.isLoop && newNode.nodeType == 11){
+                const obj = indexMap.get(fromIndex)
+                const toObj = indexMap.get(toIndex)
+                // debugger
+
+                 //add reference
+                 const fromRef = new Text("")
+                 obj.ref = fromRef
+                 obj.nodes[0].before(fromRef)
+       
+                //place nodes
+                 const ref = toObj.ref || toObj.nodes[0]
                 
-                    newNode = createFragment(holders, newNode)
+                 const newNode = document.createDocumentFragment()
+                 newNode.append(...obj.nodes)
+
+
+                 //index is not update
+                //  this.addToUpdate(newNode, fromIndex, newUpdate, groupState , indexMap, node)
+                 ref.before(...obj.nodes)
+                //  if(entireMove){
+                //  }else{
+                //     ref.before(...obj.nodes)
+                //  }
+             
+
+                 obj.ctx.data[loopIndex] = toIndex
+
+
+                 nextTick(()=>{
+                     indexMap.set(toIndex, obj)
+
+                     obj.ref.remove()
+                    delete obj.ref
+                 })
+          
+            })
+
+            
+            comparison.add.forEach(([index, item])=>{
+                index = parseInt(index) // ensure integers
+
+                if(typeof index === "string") {
+
+                   throw new Error("Index must be a number")
                 }
 
+              
 
-                obj.nodes = [...newNode.childNodes]
-          
-                newUpdate[key] = newNode
+                   //create a new context
+                   const childCtx = this.createChildContext({path, item,ctx, loopKey, loopIndex, key:index})
 
-               
-               
-             })
-
-
-             //do local updates
-             afterUpdate.forEach(fn=>fn())
-
-             //check duplicated
-            //  nextTick(()=>{
-            //     const duplicated = [...loopNodes.values()].reduce((c,v, i, a)=>a.indexOf(v) !== i?c.concat(v):c, [])
-            //     if(duplicated.length){
-            //         debugger
-            //     }
-            //  })
+                   //create a node
+                   const newNode =  template.cloneNode(true)
+                   //   registerNodeUpdate(child, childCtx)
+                   template.childNodes.forEach((child, i)=>{
+                        parallelUpdate(child, newNode.childNodes[i], childCtx)
+                    })
+                  
+                   this.addToUpdate(newNode, index, newUpdate, groupState , indexMap, node)
+                   
 
 
-             if(items.length != newUpdate.length) debugger
+                   const obj =  {
+                       nodes:[...newNode.childNodes], 
+                       ctx:childCtx,
+                       item,
+                    //    index
+                   }
 
-            //  debugger
-            // newUpdate = newUpdate.filter(v=>v)
-
-            if(node.__inTemplate)debugger
-
-            updateQueue()
-
-              requestAnimationFrame(()=>{
-                node.before(...newUpdate)
-              })
-          
+                //    valueMap.set(item, obj)
+                   indexMap.set(index, obj)
+            })
 
 
-            holders.forEach(holder=>holder.replaceWith(...holder.childNodes))
 
-            nodeObj.lastLoop = [...items]
+            // newUpdate.forEach((group, index)=>{
 
-            return 
 
+                
+            //    debugger 
+            // })
 
             
+            if(!this.currentIsNested){
+                
+                this.updateLoop( newUpdate)
+
+                nextTick(()=> this.isNested = false)
+
+            }else{
+                // debugger
+    
+                this.updateLoop(newUpdate)
+                
+            }
+    
+        
+            nodeObj.lastLoop  = loop
+            
         },
+        addToUpdate(newNode, index, newUpdate, groupState , indexMap, node){
+            let { indexGroup, lastInGroup} = groupState
+              //create a group index
+              if( indexGroup === false || index > (lastInGroup + 1) ){
+                indexGroup = groupState.indexGroup = index 
+                newUpdate[indexGroup] = newUpdate[indexGroup] || {nodes:[]}
+            
+            }
+
+            debugger
+
+            const group = newUpdate[indexGroup] 
+            //add rerefence where to attach new group
+            if(!group.ref){
+
+                //index group found or node
+                const obj = indexMap.get(index)
+    
+                group.ref = obj?.ref || obj?.nodes[0] || node
+            }
+
+            groupState.lastInGroup = index
+
+             group.nodes.push(newNode)
+        },
+        updateLoop( newUpdate){
+
+        
+            newUpdate.forEach((group, index)=>{
+                const {nodes, ref} = group
+      
+                ref.before(...nodes)
+            }) 
+
+
+  
+        }
         
 
     }
@@ -689,7 +665,6 @@ function reactive(obj, callbacks = [],  parent,key,  origin){
             let current = this
             const parents = []
     
-            console.log("hadn", this, this.nextUpdate)
             // let path = []
             let path = false
             while(current){
@@ -705,7 +680,6 @@ function reactive(obj, callbacks = [],  parent,key,  origin){
                 deep++
             }
 
-            console.log("parents", parents)
             //run first main parent effect
             parents.reverse()
     
@@ -868,7 +842,7 @@ function reactive(obj, callbacks = [],  parent,key,  origin){
 
             return true
         }
-        console.log("queueeeinggg", target, key, value)
+
         this.queueMutation({type:"set", target, key, value, oldValue, origin:this.origin})
         
         return true
@@ -885,7 +859,10 @@ function reactive(obj, callbacks = [],  parent,key,  origin){
 
           delete target[key];
 
+         if(Array.isArray(target) && this.nextUpdate) {
 
+            return true
+        }
           this.queueMutation( {type: "delete",value:target[key],oldKey, target, key,oldValue,  origin:this.origin} )
 
           return true
@@ -950,7 +927,6 @@ function reactive(obj, callbacks = [],  parent,key,  origin){
         // }})
 
 
-        console.log("neewww", payload, this)
         // if(Array.isArray(payload.target))debugger
         //save payload in an object, so last value update is triggered only
         this.nextUpdate[payload.key] = payload
@@ -973,6 +949,9 @@ function reactive(obj, callbacks = [],  parent,key,  origin){
             //     ReactiveHandler.runUpdates()
             //   })
 
+            //Like this looks better, 
+            //request animation frame can go on the loop, so first will happen the updates
+            //and then at requestAnimationFrame, will be appended.
               Promise.resolve().then(()=>{
 
 
@@ -984,7 +963,7 @@ function reactive(obj, callbacks = [],  parent,key,  origin){
          
         }else{
 
-            console.warn("is this mutation registering", payload)
+            // console.warn("is this mutation registering", payload)
 
             // debugger
         }
@@ -1184,7 +1163,7 @@ function reactive(obj, callbacks = [],  parent,key,  origin){
         static runNextTick(){
 
             if(this.isRendering ) {
-                // setTimeout(()=>this.runNextTick(), 0)
+                //  setTimeout(()=>this.runNextTick(), 0)
               
                 // requestAnimationFrame(()=>{
                 //     this.runNextTick()
@@ -1194,14 +1173,20 @@ function reactive(obj, callbacks = [],  parent,key,  origin){
             this.isRendering = true;
 
 
-            // const queue = [...Manager.nextTickQueue]
-            const queue = Manager.nextTickQueue
+            //  const queue = [...Manager.nextTickQueue]
+            //  //reset queue
+            //  Manager.nextTickQueue.length = 0
+             const queue = Manager.nextTickQueue
              // Execute all the queued callbacks
              //this makes inputs be able to focus on the nextTick
              //this doesn't affect the real time of renderization
-             requestAnimationFrame(()=>{
+             setTimeout(()=>{
                 while ( queue.length) {
                     const callback = queue.shift();
+                    if(!callback?.call){
+                        
+                        continue;
+                    }
                     callback();  // Run the callback
                 }
                  // Mark rendering as done, so further nextTicks can be scheduled
@@ -1217,7 +1202,12 @@ function reactive(obj, callbacks = [],  parent,key,  origin){
 
     function nextTick(callback){
             
+
         Manager.nextTickQueue.push(callback)
+
+        if(Manager.isRendering){
+        //    setTimeout( ()=>Manager.runNextTick(), 0)
+        }
 
     }
 
@@ -1355,7 +1345,16 @@ function updateQueue(ctx){
                 parallelUpdate(node, cloneOrCtx, childCtx)
             }else{
 
-                compiledRefs.get(node).runNodeUpdates(node, childCtx || ctx)
+
+                if(ctx){
+                    compiledRefs.get(node).runNodeUpdates(node, childCtx || ctx)
+                }else{
+                    updateNode(node, cloneOrCtx)
+                }
+
+                // updateNode(node, cloneOrCtx)
+
+                // compiledRefs.get(node).runNodeUpdates(node, childCtx || ctx)
 
             }
         }
@@ -1680,7 +1679,8 @@ function createComponent(template){
   function updateNode(root, ctx){
 
 
-    const stack = [root]
+    if(!Array.isArray(root)) root = [root]
+    const stack = [...root]
 
     while(stack.length){
         const node = stack.pop()
@@ -2094,9 +2094,8 @@ class NodeUpdate {
                 // }
                 
                 if(!value && value !== 0) value = ""
-                console.log("updating text", value)
 
-                if(value == undefined) debugger
+                
                 node.textContent = value
             }
       })
@@ -2338,107 +2337,6 @@ class NodeUpdate {
       }
 
 
-
-  
-
-      function compare(source, target) {
-        const toAdd = [];
-        const toRemove = [];
-        const toReposition = [];
-        const toKeep = [];
-        const types = new Set(); // Store unique types of values
-        const jobs = new Set();
-      
-        const isArray = Array.isArray(source) && Array.isArray(target);
-      
-        if (isArray) {
-          // Step 1: Create a map for fast lookups in the target array
-          const targetMap = new Map();
-          target.forEach((value, index) => targetMap.set(value, index));
-      
-          // Step 2: Compare source array with the target array
-          for (let i = 0; i < source.length; i++) {
-            const sourceValue = source[i];
-            types.add(typeof sourceValue);  // Track unique types
-      
-            const targetIndex = targetMap.get(sourceValue);
-      
-            if (targetIndex !== undefined) {
-              // Element found in the target array
-              if (i === targetIndex) {
-                // Same position -> toKeep
-                toKeep.push([i, sourceValue]);
-                jobs.add("keep")
-              } else {
-                // Different position -> toReposition
-                toReposition.push([i, sourceValue, targetIndex, target[targetIndex]]);
-                jobs.add("move")
-              }
-              // Remove it from the targetMap to track unvisited elements
-              targetMap.delete(sourceValue);
-            } else {
-              // Element not found in the target array -> toAdd
-              toAdd.push([i, sourceValue]);
-              jobs.add("add")
-            }
-          }
-      
-          // Step 3: Remaining elements in the targetMap are toRemove (index, value)
-          targetMap.forEach(( index, value) => {
-            types.add(typeof value); // Track unique types
-
-            if(typeof index =="object")debugger
-            toRemove.push([index, value]);  // Correct order: [index, value]
-            jobs.add("remove")
-          });
-      
-        } else {
-          // Comparing objects key by key
-          const sourceKeys = Object.keys(source);
-          const targetKeys = Object.keys(target);
-      
-          // Create a Set for fast lookup in target keys
-          const targetKeySet = new Set(targetKeys);
-      
-          // Step 1: Compare source object keys with target
-          sourceKeys.forEach((key) => {
-            types.add(typeof source[key]);  // Track unique types for source
-      
-            if (target.hasOwnProperty(key)) {
-              if (source[key] === target[key]) {
-                // Same value -> toKeep
-                toKeep.push([key, source[key]]);
-                jobs.add("keep")
-              } else {
-                // Different value -> toReposition
-                toReposition.push([key, source[key], key, target[key]]);
-                jobs.add("move")
-              }
-              targetKeySet.delete(key);  // Mark key as visited
-            } else {
-              // Key exists in source but not in target -> toAdd
-              toAdd.push([key, source[key]]);
-              jobs.add("add")
-            }
-          });
-      
-          // Step 2: Remaining keys in targetKeySet -> toRemove (key, value)
-          targetKeySet.forEach((key) => {
-            types.add(typeof target[key]); // Track unique types for target
-            toRemove.push([key, target[key]]);  // Correct order: [key, value]
-            jobs.add("remove")
-          });
-        }
-      
-        return {
-            jobs: Array.from(jobs),
-          toAdd,
-          toRemove,
-          toReposition,
-          toKeep,
-          types: Array.from(types)  // Return unique types as an array
-        };
-      }
       
   function parallelUpdate(template, newNode, ctx){
 
@@ -2506,3 +2404,443 @@ class NodeUpdate {
         return value;
     }
   }
+
+
+
+
+
+
+
+const isObj = (k)=>  k  && typeof k === "object" || typeof k === "function" ; 
+
+class HybridWeakMap {
+  constructor() {
+    this.weakMap = new WeakMap(); // To store object keys
+    this.map = new Map();         // To store string keys
+  }
+
+  set(key, value) {
+    if (isObj(key)) {
+      this.weakMap.set(key, value);
+
+    } else{
+      //   else if (typeof key !== "string") 
+      // If the key is a string, store it in the Map
+      this.map.set(key, value);
+    } 
+
+    return this; // For chaining
+  }
+
+  get(key) {
+    if (isObj(key)) {
+      // Retrieve from WeakMap if the key is an object
+      return this.weakMap.get(key);
+    } else {
+      // Retrieve from Map if the key is a string
+      return this.map.get(key);
+    }
+    return undefined; // If key is neither an object nor a string
+  }
+
+  has(key) {
+    if (isObj(key)) {
+      // Check in WeakMap if the key is an object
+      return this.weakMap.has(key);
+    } else  {
+      // Check in Map if the key is a string
+      return this.map.has(key);
+    }
+    return false; // If key is neither an object nor a string
+  }
+
+  delete(key) {
+    if (isObj(key)) {
+      // Delete from WeakMap if the key is an object
+      return this.weakMap.delete(key);
+    } else  {
+      // Delete from Map if the key is a string
+      return this.map.delete(key);
+    }
+    return false; // If key is neither an object nor a string
+  }
+}
+
+
+
+
+
+
+//splice like
+//a = [1,2,3,4,5]
+///b = [1,2,8, 9, 3,4,5]
+//
+function myCompare(a , b, alreadyValues){
+
+    const oldV = alreadyValues ? a : Object.values(a)
+    const newV = alreadyValues ? b : Object.values(b)
+
+    const largest = oldV.length > newV.length?oldV:newV
+    const len = largest.length
+    const jobs = new Set()
+
+    const move = []
+    const remove = []
+    const add = []
+    const updated =[]
+    const oldValueIndexes = new HybridWeakMap()
+    const newValueMap = new HybridWeakMap()
+
+    // oldV.forEach((value, index) => oldValueMap.set(value, index));
+    // newV.forEach((value, index) => newValueMap.set(value, index));
+
+    const oldValueMoves = new HybridWeakMap()
+
+    const pendingMoves = new Set()
+    let index = -1
+    let added = 0
+    let removed = 0
+    const firstEmpty = oldV.length == 0
+
+    let  offset = 0
+    while(++index < len){
+               
+        //just add
+        if(firstEmpty){
+
+              add.push(...Object.entries(newV))
+
+              jobs.add("add")
+    
+            break;
+        }
+
+
+
+        //  offset = - removed + added 
+        const oldVal = oldV[index]
+        const newVal = newV[index]
+        const existOld = oldV.hasOwnProperty(index)
+        const existNew = newV.hasOwnProperty(index)
+
+ 
+        if(existNew){
+            
+             //save indexes of the old values
+            if(!oldValueIndexes.has(newVal)){
+                oldValueIndexes.set(newVal, [index])
+            }else{
+                oldValueIndexes.get(newVal).push(index)
+            }
+
+        }
+       
+   
+
+        
+
+        let oldDone 
+        let newDone
+
+
+        if(oldVal == newVal) continue;
+
+        //check if the value is in the array because of the mutations theorically made
+        //[1,2,3,4,5]
+        //[1,2, -remove, +new, +new, 3,4,5 ]
+
+        //  if(2 < index)debugger
+         if(existNew && oldV.hasOwnProperty(index-offset) && oldV[index-offset] == newVal) {
+
+        
+            // if(!oldVal)debugger
+            updated.push([ index-offset, index, oldVal, offset,"mutation"])
+            // jobs.add("update")
+            continue;
+         }
+       
+
+             
+        //new indexes
+         if(!existOld ){
+            // if(index >= oldV.length  ){
+          
+            offset++
+            
+            add.push([index, newVal, "existOld"])
+            jobs.add("add")
+  
+            continue;
+        }
+
+        //ADD
+       
+        //
+        if(existNew && !oldV.includes(newVal)){
+
+            added++
+           
+            offset++
+            add.push([index, newVal, "default"])
+           
+            jobs.add("add")
+
+            //if it's  in the old, will be shift, otherwise is a delete
+            // if(newV.includes(oldVal)){
+            //     updated.push([index, oldVal, newVal , "mutation"])
+            // }
+          
+            oldDone = true
+             
+            newDone = true
+        }
+
+
+        //REMOVE
+        if( index < oldV.length && !newV.includes(oldVal)){
+
+            removed++
+            offset--
+            remove.push([ index, oldVal, newVal])
+
+            jobs.add("remove")
+
+            
+
+            oldDone = true
+       
+            continue;
+        }
+
+        //MOVE
+        //from old to new
+        //
+        if(!newDone && newV.includes(oldVal)){
+
+ 
+            const obj = [index, undefined,  oldVal, newVal, "oldToNew"]
+            
+            move.push(obj)
+
+            // oldValueMoves.set(newVal, )
+   
+            jobs.add("move")
+            continue
+        }
+
+        //from new to old
+        if(!oldDone &&  oldV.includes(newVal)){
+            let oldIndex = newIndexMap.get(oldVal)
+
+            throw new Error("Not implemented")
+            if(!oldIndex)debugger
+            move.push([index, oldIndex,   oldVal, newVal , "newToOld"])
+
+            jobs.add("move")
+        }
+        
+        if(!oldDone || !newDone){
+            // console.warn("iplement", {oldDone, newDone, index, oldV, newV, oldVal, newVal})
+        }
+       
+
+    }
+
+   
+    //update index of moves
+  
+    move.forEach((move)=>{
+
+        if(!oldValueIndexes.has(move[2])){
+            debugger
+        }
+        //if the value is repeated the could have multiple indexes
+        //so go removing indexes
+        const indexes = oldValueIndexes.get(move[2])
+
+        const index = indexes.shift()
+
+        if(typeof index !== "number")debugger
+        move[1] = index
+
+    })
+   
+
+    return { 
+        jobs,
+        add ,
+        remove,
+        move,
+
+        updated,
+        offset
+    }
+
+}
+
+
+o1 = { v:"1"};
+o2 = { v:"2"};
+o3 = { v:"3"};
+o4 = { v:"4"};
+o5 = { v:"5"};
+
+
+//splice like
+ a = [o1, o2,o3, o4,o5] // len 5
+ b = [o1, o2, {v:"6"}, {v:"7"}, o4,o5,]  // ln 6
+
+ console.time("myCompare")
+ console.log(myCompare(a,b))
+ console.timeEnd("myCompare")
+ console.time("minimalMovesToTransformArray")
+ console.log(minimalMovesToTransformArray(a,b))
+ console.timeEnd("minimalMovesToTransformArray")
+  //delete one 
+  a = [o1, o2,o3, o4,o5]
+  b = [o1, o2, o4,o5,]  
+
+  console.time("myCompare")
+  console.log(myCompare(a,b))
+  console.timeEnd("myCompare")
+  console.time("minimalMovesToTransformArray")
+  console.log(minimalMovesToTransformArray(a,b))
+  console.timeEnd("minimalMovesToTransformArray")
+
+
+  //same value twice 
+ a = [o1, o2,o3, o4,o5]
+ b = [o1, o2,o1 , o4,o5, o3]  
+  console.time("myCompare")
+ console.log(myCompare(a,b))
+ console.timeEnd("myCompare")
+ console.time("minimalMovesToTransformArray")
+ console.log(minimalMovesToTransformArray(a,b))
+ console.timeEnd("minimalMovesToTransformArray")
+
+   //same value twice 
+   a = [o1, o2,o4, o3, o4,o5]
+   b = [o1, o2,o1 , o4,o5, o3]  
+  console.time("myCompare")
+ console.log(myCompare(a,b))
+ console.timeEnd("myCompare")
+ console.time("minimalMovesToTransformArray")
+ console.log(minimalMovesToTransformArray(a,b))
+ console.timeEnd("minimalMovesToTransformArray")
+
+
+ a = []
+ b = [o1, o2,o1 , o4,o5, o3]  
+console.time("myCompare")
+console.log(myCompare(a,b))
+console.timeEnd("myCompare")
+console.time("minimalMovesToTransformArray")
+console.log(minimalMovesToTransformArray(a,b))
+console.timeEnd("minimalMovesToTransformArray")
+
+a = [o1, o2,o4, o3, o4,o5]
+b = []  
+console.time("myCompare")
+console.log(myCompare(a,b))
+console.timeEnd("myCompare")
+console.time("minimalMovesToTransformArray")
+console.log(minimalMovesToTransformArray(a,b))
+console.timeEnd("minimalMovesToTransformArray")
+
+//reverse
+a = [o1, o2, o3, o4,o5]
+b = [  o5,o4,o2,o3,o1,]  
+console.time("myCompare")
+console.log(myCompare(a,b))
+console.timeEnd("myCompare")
+console.time("minimalMovesToTransformArray")
+console.log(minimalMovesToTransformArray(a,b))
+console.timeEnd("minimalMovesToTransformArray")
+
+
+    //lon array 
+    //myCompare is faster with long arrays since traverse only one time
+
+    a = [ ...Array.from(Array(10000)),o1, o2,o4, o3, o4,o5]
+    b = [...Array.from(Array(10000)), o1, o2,o1 , o4,o5, o3]  
+   console.time("myCompare")
+  console.log(myCompare(a,b))
+  console.timeEnd("myCompare")
+  console.time("minimalMovesToTransformArray")
+  console.log(minimalMovesToTransformArray(a,b))
+  console.timeEnd("minimalMovesToTransformArray")
+
+  //add one
+  a = [o1, o2,o4, o3, o4,o5]
+  b = [o1, o2,o1 , o4,o5, o3, {"v":"6"}]  
+ console.time("myCompare")
+console.log(myCompare(a,b))
+console.timeEnd("myCompare")
+console.time("minimalMovesToTransformArray")
+console.log(minimalMovesToTransformArray(a,b))
+console.timeEnd("minimalMovesToTransformArray")
+
+a = [o1, o2, o3, o4,o5]
+b = [o1, o2, o3, o4,o5, {"v":"6"}]  
+console.time("myCompare")
+console.log(myCompare(a,b))
+console.timeEnd("myCompare")
+console.time("minimalMovesToTransformArray")
+console.log(minimalMovesToTransformArray(a,b))
+console.timeEnd("minimalMovesToTransformArray")
+
+
+
+  //GPT version, 
+  //not skiping innecessary moves 
+
+  function minimalMovesToTransformArray(oldArray, newArray) {
+    const toAdd = [];
+    const toRemove = [];
+    const toMove = [];
+    
+    const oldMap = new Map();
+    const newMap = new Map();
+    const jobs = new Set();
+    
+    // Step 1: Create maps of elements with their indices for quick lookup
+    oldArray.forEach((value, index) => oldMap.set(value, index));
+    newArray.forEach((value, index) => newMap.set(value, index));
+    
+    let offset = 0; // This offset will account for shifts due to additions and removals
+    
+    // Step 2: Identify items to remove (in oldArray but not in newArray)
+    oldArray.forEach((value, oldIndex) => {
+      if (!newMap.has(value)) {
+        toRemove.push([oldIndex, value]);
+        offset--; // Decrease offset because we remove an element
+      }
+    });
+    
+    // Step 3: Identify items to add (in newArray but not in oldArray)
+    newArray.forEach((value, newIndex) => {
+      if (!oldMap.has(value)) {
+        toAdd.push([newIndex, value]);
+        offset++; // Increase offset because we add an element
+      }
+    });
+    
+    // Step 4: Identify items to move (present in both arrays but in different positions)
+    oldArray.forEach((value, oldIndex) => {
+      if (newMap.has(value)) {
+        const newIndex = newMap.get(value);
+        // If the element is not where it should be considering the offset
+        if (oldIndex + offset !== newIndex) {
+          toMove.push([oldIndex,  newIndex, value]);
+        }
+      }
+    });
+  
+    return {
+        jobs,
+      add:toAdd,
+      remove:toRemove,
+      move:toMove
+    };
+  }
+  

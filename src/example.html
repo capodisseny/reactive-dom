@@ -24,7 +24,8 @@
             {{tasks.0.name}}
 
             <h2   style="{{attrs.style}}">Code</h2> {{renderingTime}} ms  
-            <button  onclick="addRows">Add 1000 rows </button>
+            <input   value="{{pushRows}}" type="number">
+            <button  onclick="addRows">push {{pushRows}} rows </button>
             {{rowsToAdd}}
            <div class="flex grid">
             {{(this.rowsToAdd + 14)}}
@@ -38,6 +39,7 @@
                 <input   value="{{rowsAt}}" type="number">
             </dialog>
             <button  onclick="()=>activeTab = !activeTab">Open dialog</button>
+            <button  onclick="reverse">Reverse</button>
 
             <button  onclick="addRows(rowsToAdd)">Add {{rowsToAdd}} at {{rowsAt}} and delete {{rowsDelete}}</button>
 
@@ -50,7 +52,7 @@
             <input  value="{{list.0}}" type="text"> 
 
             <input  value="{{tasks.0.name}}" type="text">
-            <input  value="{{tasks.1.name}}" type="text">
+            <input  value="{{tasks.6.name:debug}}" type="text">
             <ul s-show="{{tasks}}"  style="list-style:auto">
 
         
@@ -61,11 +63,10 @@
        
                 <div>some content</div>
                 {{(()=>{
-                    return "Delete  " + this.rowsDelete
+                    return "Delete  " + this.rowsDelete;
                 })()}}
 
 
-                {{rowsDelete}}
            
                 <!-- {{(attrs? attrs.style: "")}} -->
                 <template s-loop="{{task,i in tasks}}" >
@@ -190,7 +191,7 @@
                 
             },
             {
-                name:"Task 3",
+                name:"Task 4",
                 description:"Description 3",
                 responsibles:["John"]
                 
@@ -201,7 +202,8 @@
         count:0,
         renderingTime: "Click add rows",
         time:0,
-        rowsToAdd:10
+        rowsToAdd:10,
+        pushRows:1000,
       
     }, ()=>{
         console.log("data changed")
@@ -230,10 +232,19 @@
     // })
 
     console.log("data", data)
+    data.reverse = ()=>{
+        let start = new Date().getTime()
+        data.tasks.reverse()
+
+        nextTick(()=>{
+
+        
+            data.renderingTime = new Date().getTime() - start
+            console.log(data.renderingTime, "renderingTime")
+        })
+    }
     data.removeTask = (i, )=>{
 
-
-        debugger
         data.tasks.splice(i, 1)
       
     }
@@ -242,11 +253,13 @@
         data.count++
     }
 
-    let arrays = Array.from(Array(1000)).map((r, i)=>({name:"Task "+i}))
+  
     data.addRows = (i)=>{
  
         i = !isNaN(Number(i))? Number(i): i
         let start = new Date().getTime()
+
+        console.log(i)
         if(typeof i =="number"){
 
             let at = data.rowsAt || 1
@@ -260,7 +273,10 @@
 
             
         }else{
+
+            const arrays = Array.from(Array(data.pushRows)).map((r, i)=>({name:"Task "+i}))
          
+            console.log(data.tasks)
             data.tasks.push(...arrays)
         }
      

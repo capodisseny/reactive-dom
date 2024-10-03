@@ -15,7 +15,7 @@
 
             <h2>Code</h2> {{renderingTime}} ms  
             <button  @click="addRows">Add 1000 rows </button>
-            
+            <button  @click="reverse">Reverse</button>
             <input   v-model="rowsToAdd" type="text">
             <button  @click="addRows(rowsToAdd)">Add 10 </button>
 
@@ -45,7 +45,8 @@
                      <!-- <input  v-model="task.name" type="text"> -->
                      <!-- <input  v-model="i" type="text"> -->
 
-                     <template v-loop="{{person,i in task.responsibles}}" >
+                     {{task.responsibles}}
+                     <!-- <template v-loop="{{person,i in task.responsibles}}" >
                         <li data-task-id="{{person}}""> {{person}}
 
                        
@@ -53,7 +54,7 @@
                            
                        </li>
     
-                   </template>
+                   </template> -->
                     
                 </li>
 
@@ -147,11 +148,14 @@ import {reactive, nextTick, createApp} from "https://unpkg.com/petite-vue?module
             
             
 ],
-        activeTab:false,
+        activeTab:true,
         count:0,
         renderingTime: "Click add rows",
         time:0,
-        rowsToAdd:10
+        rowsToAdd:10,
+        reverse(){
+            this.tasks.reverse()
+        }
       
     }
 

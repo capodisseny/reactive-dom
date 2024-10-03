@@ -1,6 +1,8 @@
 
 
 
+const isObj = (k)=>  k  && typeof k === "object" || typeof k === "function" ; 
+
 class HybridWeakMap {
   constructor() {
     this.weakMap = new WeakMap(); // To store object keys
@@ -8,9 +10,8 @@ class HybridWeakMap {
   }
 
   set(key, value) {
-    if (key instanceof Object && key !== null) {
-      // if (typeof key === "object" && key !== null) {
-      // If the key is an object, store it in the WeakMap
+    if (isObj(key)) {
+
       this.weakMap.set(key, value);
 
     } else{
@@ -18,14 +19,12 @@ class HybridWeakMap {
       // If the key is a string, store it in the Map
       this.map.set(key, value);
     } 
-  //   else {
-  //     throw new TypeError("Key must be an object or a string.");
-  //   }
+
     return this; // For chaining
   }
 
   get(key) {
-    if (key instanceof Object && key !== null) {
+    if (isObj(key)) {
       // Retrieve from WeakMap if the key is an object
       return this.weakMap.get(key);
     } else {
@@ -36,7 +35,7 @@ class HybridWeakMap {
   }
 
   has(key) {
-    if (key instanceof Object && key !== null) {
+    if (isObj(key)) {
       // Check in WeakMap if the key is an object
       return this.weakMap.has(key);
     } else  {
@@ -47,7 +46,7 @@ class HybridWeakMap {
   }
 
   delete(key) {
-    if (key instanceof Object && key !== null) {
+    if (isObj(key)) {
       // Delete from WeakMap if the key is an object
       return this.weakMap.delete(key);
     } else  {
@@ -69,12 +68,15 @@ export class HybridWeakMap {
       if (typeof key === "object" && key !== null) {
         // If the key is an object, store it in the WeakMap
         this.weakMap.set(key, value);
-      } else if (typeof key === "string") {
+      } else 
+        if (typeof key === "string")
+         {
         // If the key is a string, store it in the Map
         this.map.set(key, value);
-      } else {
-        throw new TypeError("Key must be an object or a string.");
       }
+      //  else {
+      //   throw new TypeError("Key must be an object or a string.");
+      // }
       return this; // For chaining
     }
   
@@ -82,7 +84,7 @@ export class HybridWeakMap {
       if (typeof key === "object" && key !== null) {
         // Retrieve from WeakMap if the key is an object
         return this.weakMap.get(key);
-      } else if (typeof key === "string") {
+      } else  {
         // Retrieve from Map if the key is a string
         return this.map.get(key);
       }
