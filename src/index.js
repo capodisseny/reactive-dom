@@ -199,6 +199,16 @@
             return childCtx 
          
         },
+        createAutoCleanRef(obj){
+
+                obj.ref = new Text("")
+                obj.nodes[0].before(obj.ref)
+
+            nextTick(()=>{
+                obj.ref.remove()
+                delete obj.ref
+            })
+        },
         updateFunction(node, update, {expression, helper} , ctx){
 
             const {type, target, key,value, updateId, oldValue} = update
@@ -233,8 +243,6 @@
              console.timeEnd("Comparison")
 
              const indexMap = nodeObj.indexMap = nodeObj.indexMap || new Map()
-            const valueMap = nodeObj.indexValue = nodeObj.indexValue || new Map()
-
              const oneJob = jobs.size === 1?[...jobs][0]:false
 
              this.currentIsNested = this.isNested
@@ -274,12 +282,21 @@
             comparison.remove.forEach(([index, item])=>{
                 const obj = indexMap.get(index)
                
-        
+                //set a reference
+                this.createAutoCleanRef(obj)
+                
+                //do it syncronows to avoid reflow
+                //this will happen if there is a list with css list-style numeric
+                //because needs to put the new number
+                obj.nodes.forEach(node=>node.remove()) 
+
+             
+
                 nextTick(()=>{
                     
-                    obj.nodes.forEach(node=>node.remove())
+                    // obj.nodes.forEach(node=>node.remove())
                     //ensure add actions also do this async
-                    indexMap.delete(index)
+                     indexMap.delete(index)
                    
                 })
 
@@ -287,20 +304,23 @@
 
 
 
+            const updates = []
             //items that are not moved manually moved becaause are pushed up the array
             comparison.updated.forEach(( [from,  to, item])=>{
 
                 const obj = indexMap.get(from)
 
-                // debugger
+                //  updates.push(()=>obj.ctx.data[loopIndex] = to)
                  obj.ctx.data[loopIndex] = to
 
                  nextTick(()=>{
                      indexMap.set(to, obj)
-                    // obj.ctx.data[loopIndex] = index
                  })
           
             })
+
+            // updates.forEach(update=>update())
+
 
             //items that especified to be moved
             const entireMove = comparison.move.length == items.length
@@ -313,9 +333,11 @@
                 // debugger
 
                  //add reference
-                 const fromRef = new Text("")
-                 obj.ref = fromRef
-                 obj.nodes[0].before(fromRef)
+                //  const fromRef = new Text("")
+                //  obj.ref = fromRef
+                //  obj.nodes[0].before(fromRef)
+
+                 this.createAutoCleanRef(obj)
        
                 //place nodes
                  const ref = toObj.ref || toObj.nodes[0]
@@ -323,24 +345,20 @@
                  const newNode = document.createDocumentFragment()
                  newNode.append(...obj.nodes)
 
-
                  //index is not update
-                //  this.addToUpdate(newNode, fromIndex, newUpdate, groupState , indexMap, node)
-                 ref.before(...obj.nodes)
+                  this.addToUpdate(newNode, fromIndex, newUpdate, groupState , indexMap, node)
+                    // ref.before(...obj.nodes)
                 //  if(entireMove){
                 //  }else{
                 //     ref.before(...obj.nodes)
                 //  }
-             
-
+            
                  obj.ctx.data[loopIndex] = toIndex
-
 
                  nextTick(()=>{
                      indexMap.set(toIndex, obj)
 
-                     obj.ref.remove()
-                    delete obj.ref
+              
                  })
           
             })
@@ -416,8 +434,6 @@
                 newUpdate[indexGroup] = newUpdate[indexGroup] || {nodes:[]}
             
             }
-
-            debugger
 
             const group = newUpdate[indexGroup] 
             //add rerefence where to attach new group
@@ -976,8 +992,6 @@ function reactive(obj, callbacks = [],  parent,key,  origin){
  }
 
 
-
-
  function compute(computation){
 
 
@@ -1183,7 +1197,37 @@ function reactive(obj, callbacks = [],  parent,key,  origin){
              // Execute all the queued callbacks
              //this makes inputs be able to focus on the nextTick
              //this doesn't affect the real time of renderization
-             setTimeout(()=>{
+            //  setTimeout(()=>{
+            //     while ( queue.length) {
+            //         const callback = queue.shift();
+            //         if(!callback?.call){
+                        
+            //             continue;
+            //         }
+            //         callback();  // Run the callback
+            //     }
+            //      // Mark rendering as done, so further nextTicks can be scheduled
+            //      this.isRendering = false;
+            //   })
+            //   requestAnimationFrame(()=>{
+            //     while ( queue.length) {
+            //         const callback = queue.shift();
+            //         if(!callback?.call){
+                        
+            //             continue;
+            //         }
+            //         callback();  // Run the callback
+            //     }
+            //      // Mark rendering as done, so further nextTicks can be scheduled
+            //      this.isRendering = false;
+            //   })
+
+            //IMPORTANT: nextTick should be Promise.resolve, 
+            //otherwise, we can miss some user interactions
+            //should be at least after the next update
+            //so use Promise.resolve for both, nextTick, and TriggerUpdate
+            Promise.resolve().then(()=>{
+
                 while ( queue.length) {
                     const callback = queue.shift();
                     if(!callback?.call){
@@ -1194,7 +1238,7 @@ function reactive(obj, callbacks = [],  parent,key,  origin){
                 }
                  // Mark rendering as done, so further nextTicks can be scheduled
                  this.isRendering = false;
-              })
+            })
 
         }
        
@@ -2055,8 +2099,6 @@ class NodeUpdate {
 
     }
 
-
-
     removeNode(){
 
         
@@ -2329,9 +2371,6 @@ class NodeUpdate {
 
   
 
-      
-
-
       function toRaw(obj){
         if(typeof obj != "object") return obj
 
@@ -2407,11 +2446,6 @@ class NodeUpdate {
         return value;
     }
   }
-
-
-
-
-
 
 
 const isObj = (k)=>  k  && typeof k === "object" || typeof k === "function" ; 
@@ -2492,14 +2526,9 @@ function myCompare(a , b, alreadyValues){
     const add = []
     const updated =[]
     const oldValueIndexes = new HybridWeakMap()
-    const newValueMap = new HybridWeakMap()
+     const newValueCount = new HybridWeakMap()
+     const oldValueCount = new HybridWeakMap()
 
-    // oldV.forEach((value, index) => oldValueMap.set(value, index));
-    // newV.forEach((value, index) => newValueMap.set(value, index));
-
-    const oldValueMoves = new HybridWeakMap()
-
-    const pendingMoves = new Set()
     let index = -1
 
     const firstEmpty = oldV.length == 0
@@ -2585,7 +2614,9 @@ function myCompare(a , b, alreadyValues){
         }
 
         //ADD
-       
+        //two options,
+            // new value doesn't exist
+            //new value exists but is duplicated
         //
         if(existNew && !oldV.includes(newVal)){
            
@@ -2619,6 +2650,12 @@ function myCompare(a , b, alreadyValues){
             debugger
             jobs.add("remove")
 
+
+            if(existNew && oldV.hasOwnProperty(index+1) && oldV[index+1] === newVal){
+                //it's only a remove
+                updated.push([ index+1,index,  newVal, "mutation"])
+                continue;
+            }
             
             oldDone = true
        
@@ -2739,200 +2776,3 @@ function myCompare(a , b, alreadyValues){
     }
 
 }
-
-
-
-o1 = { v:"1"};
-o2 = { v:"2"};
-o3 = { v:"3"};
-o4 = { v:"4"};
-o5 = { v:"5"};
-
-
-if(false){
-
-
-
-
-
-    //splice like
-    a = [o1, o2,o3, o4,o5] // len 5
-    b = [o1, o2, {v:"6"}, {v:"7"}, o4,o5,]  // ln 6
-
-    console.time("myCompare")
-    console.log(myCompare(a,b))
-    console.timeEnd("myCompare")
-    console.time("minimalMovesToTransformArray")
-    console.log(minimalMovesToTransformArray(a,b))
-    console.timeEnd("minimalMovesToTransformArray")
-    //delete one 
-    a = [o1, o2,o3, o4,o5]
-    b = [o1, o2, o4,o5,]  
-
-    console.time("myCompare")
-    console.log(myCompare(a,b))
-    console.timeEnd("myCompare")
-    console.time("minimalMovesToTransformArray")
-    console.log(minimalMovesToTransformArray(a,b))
-    console.timeEnd("minimalMovesToTransformArray")
-
-
-    //same value twice 
-    a = [o1, o2,o3, o4,o5]
-    b = [o1, o2,o1 , o4,o5, o3]  
-    console.time("myCompare")
-    console.log(myCompare(a,b))
-    console.timeEnd("myCompare")
-    console.time("minimalMovesToTransformArray")
-    console.log(minimalMovesToTransformArray(a,b))
-    console.timeEnd("minimalMovesToTransformArray")
-
-    //same value twice 
-    a = [o1, o2,o4, o3, o4,o5]
-    b = [o1, o2,o1 , o4,o5, o3]  
-    console.time("myCompare")
-    console.log(myCompare(a,b))
-    console.timeEnd("myCompare")
-    console.time("minimalMovesToTransformArray")
-    console.log(minimalMovesToTransformArray(a,b))
-    console.timeEnd("minimalMovesToTransformArray")
-
-
-    a = []
-    b = [o1, o2,o1 , o4,o5, o3]  
-    console.time("myCompare")
-    console.log(myCompare(a,b))
-    console.timeEnd("myCompare")
-    console.time("minimalMovesToTransformArray")
-    console.log(minimalMovesToTransformArray(a,b))
-    console.timeEnd("minimalMovesToTransformArray")
-
-    a = [o1, o2,o4, o3, o4,o5]
-    b = []  
-    console.time("myCompare")
-    console.log(myCompare(a,b))
-    console.timeEnd("myCompare")
-    console.time("minimalMovesToTransformArray")
-    console.log(minimalMovesToTransformArray(a,b))
-    console.timeEnd("minimalMovesToTransformArray")
-
-    //reverse
-    a = [o1, o2, o3, o4,o5]
-    b = [  o5,o4,o2,o3,o1,]  
-    console.time("myCompare")
-    console.log(myCompare(a,b))
-    console.timeEnd("myCompare")
-    console.time("minimalMovesToTransformArray")
-    console.log(minimalMovesToTransformArray(a,b))
-    console.timeEnd("minimalMovesToTransformArray")
-
-
-        //lon array 
-        //myCompare is faster with long arrays since traverse only one time
-
-    a = [ ...Array.from(Array(10000)),o1, o2,o4, o3, o4,o5]
-    b = [...Array.from(Array(10000)), o1, o2,o1 , o4,o5, o3]  
-    console.time("myCompare")
-    console.log(myCompare(a,b))
-    console.timeEnd("myCompare")
-    console.time("minimalMovesToTransformArray")
-    console.log(minimalMovesToTransformArray(a,b))
-    console.timeEnd("minimalMovesToTransformArray")
-
-    //add one
-    a = [o1, o2,o4, o3, o4,o5]
-    b = [o1, o2,o1 , o4,o5, o3, {"v":"6"}]  
-    console.time("myCompare")
-    console.log(myCompare(a,b))
-    console.timeEnd("myCompare")
-    console.time("minimalMovesToTransformArray")
-    console.log(minimalMovesToTransformArray(a,b))
-    console.timeEnd("minimalMovesToTransformArray")
-
-    a = [o1, o2, o3, o4,o5]
-    b = [o1, o2, o3, o4,o5, {"v":"6"}]  
-    console.time("myCompare")
-    console.log(myCompare(a,b))
-    console.timeEnd("myCompare")
-    console.time("minimalMovesToTransformArray")
-    console.log(minimalMovesToTransformArray(a,b))
-    console.timeEnd("minimalMovesToTransformArray")
-
-
-    a = [o1, o2, o3, o4,o5]
-    b = [o1, o2, o3,o2,o5,]  
-    console.time("myCompare")
-    console.log(myCompare(a,b))
-    console.timeEnd("myCompare")
-    console.time("minimalMovesToTransformArray")
-    console.log(minimalMovesToTransformArray(a,b))
-    console.timeEnd("minimalMovesToTransformArray")
-
-    a = [o1, o2, o3, o4,o5]
-    b = [o1, o2, o3,o5]  
-    console.time("myCompare")
-    console.log(myCompare(a,b))
-    console.timeEnd("myCompare")
-
-
-    a = [o1, o2, o3, o4,o5]
-    b = [o1, o2, o3,o3 ] 
-    console.log(myCompare(a,b))
-
-
-}
-
-
-  //GPT version, 
-  //not skiping innecessary moves 
-
-  function minimalMovesToTransformArray(oldArray, newArray) {
-    const toAdd = [];
-    const toRemove = [];
-    const toMove = [];
-    
-    const oldMap = new Map();
-    const newMap = new Map();
-    const jobs = new Set();
-    
-    // Step 1: Create maps of elements with their indices for quick lookup
-    oldArray.forEach((value, index) => oldMap.set(value, index));
-    newArray.forEach((value, index) => newMap.set(value, index));
-    
-    let offset = 0; // This offset will account for shifts due to additions and removals
-    
-    // Step 2: Identify items to remove (in oldArray but not in newArray)
-    oldArray.forEach((value, oldIndex) => {
-      if (!newMap.has(value)) {
-        toRemove.push([oldIndex, value]);
-        offset--; // Decrease offset because we remove an element
-      }
-    });
-    
-    // Step 3: Identify items to add (in newArray but not in oldArray)
-    newArray.forEach((value, newIndex) => {
-      if (!oldMap.has(value)) {
-        toAdd.push([newIndex, value]);
-        offset++; // Increase offset because we add an element
-      }
-    });
-    
-    // Step 4: Identify items to move (present in both arrays but in different positions)
-    oldArray.forEach((value, oldIndex) => {
-      if (newMap.has(value)) {
-        const newIndex = newMap.get(value);
-        // If the element is not where it should be considering the offset
-        if (oldIndex + offset !== newIndex) {
-          toMove.push([oldIndex,  newIndex, value]);
-        }
-      }
-    });
-  
-    return {
-        jobs,
-      add:toAdd,
-      remove:toRemove,
-      move:toMove
-    };
-  }
-  

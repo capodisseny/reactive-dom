@@ -1,6 +1,6 @@
 
 <!-- <script src="http://127.0.0.1:8081/out.js"  ></script> -->
-<script src="reactive-dom.js"  ></script>
+<script src="/src/index.js"  ></script>
 
 <!-- <script src="//unpkg.com/alpinejs" defer></script> -->
 
@@ -236,7 +236,7 @@
         let start = new Date().getTime()
         data.tasks.reverse()
 
-        nextTick(()=>{
+        setTimeout(()=>{
 
         
             data.renderingTime = new Date().getTime() - start

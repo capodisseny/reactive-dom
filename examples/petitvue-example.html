@@ -110,12 +110,24 @@
     </div>
     </div> -->
 </div>
+<script type="importmap">
+    {
+      "imports": {
+        "vue": "http://192.168.1.35:8081/examples/vue.js?module"
+    
+      }
+    }
+  </script>
+
+  <!-- <script src="vue.js">
+
+  </script> -->
 <script type="module">
 // import functions ref, reactive, ...
 
-import {reactive, nextTick, createApp} from "https://unpkg.com/petite-vue?module";
-    // import {reactive , ref} from "/src/reactive-dom.js";
+ import {reactive, nextTick, createApp} from "https://unpkg.com/petite-vue?module";
 
+    // const {reactive, nextTick, createApp} = PetiteVue
     const attrs = reactive({
             class:"some-class",
             style:"color:red",

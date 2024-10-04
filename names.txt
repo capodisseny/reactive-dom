@@ -1,0 +1,14 @@
+
+
+
+
+Other libraries
+https://github.com/vuejs/petite-vue
+https://www.npmjs.com/package/real
+https://www.npmjs.com/package/rdom
+https://www.npmjs.com/package/@webqit/realdom?activeTab=dependencies
+
+re-dom
+real-dom
+real-js
+re-re
