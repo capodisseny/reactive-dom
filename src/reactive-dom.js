@@ -273,11 +273,14 @@
 
             comparison.remove.forEach(([index, item])=>{
                 const obj = indexMap.get(index)
-
+               
+        
                 nextTick(()=>{
                     
                     obj.nodes.forEach(node=>node.remove())
+                    //ensure add actions also do this async
                     indexMap.delete(index)
+                   
                 })
 
             })
@@ -351,8 +354,6 @@
                    throw new Error("Index must be a number")
                 }
 
-              
-
                    //create a new context
                    const childCtx = this.createChildContext({path, item,ctx, loopKey, loopIndex, key:index})
 
@@ -375,7 +376,9 @@
                    }
 
                 //    valueMap.set(item, obj)
-                   indexMap.set(index, obj)
+                  nextTick(()=>{
+                    indexMap.set(index, obj)
+                  })
             })
 
 
@@ -2498,15 +2501,19 @@ function myCompare(a , b, alreadyValues){
 
     const pendingMoves = new Set()
     let index = -1
-    let added = 0
-    let removed = 0
+
     const firstEmpty = oldV.length == 0
 
-    let  offset = 0
+    let  offset = 0 //difference between the two arrays
+    const indexActions = []
     while(++index < len){
                
+
+        const actions = indexActions[index]= []
         //just add
         if(firstEmpty){
+
+                offset = newV.length
 
               add.push(...Object.entries(newV))
 
@@ -2526,18 +2533,22 @@ function myCompare(a , b, alreadyValues){
  
         if(existNew){
             
-             //save indexes of the old values
+             //save indexes of the newValues values
             if(!oldValueIndexes.has(newVal)){
-                oldValueIndexes.set(newVal, [index])
-            }else{
-                oldValueIndexes.get(newVal).push(index)
+                oldValueIndexes.set(newVal, [])
+            }
+            if(!oldValueIndexes.has(oldVal)){
+                oldValueIndexes.set(oldVal, [index])
+            }
+
+            //asign the old
+            else if(oldValueIndexes.has(oldVal)){
+                oldValueIndexes.get(oldVal).push(index)
             }
 
         }
        
    
-
-        
 
         let oldDone 
         let newDone
@@ -2551,7 +2562,6 @@ function myCompare(a , b, alreadyValues){
 
         //  if(2 < index)debugger
          if(existNew && oldV.hasOwnProperty(index-offset) && oldV[index-offset] == newVal) {
-
         
             // if(!oldVal)debugger
             updated.push([ index-offset, index, oldVal, offset,"mutation"])
@@ -2570,6 +2580,7 @@ function myCompare(a , b, alreadyValues){
             add.push([index, newVal, "existOld"])
             jobs.add("add")
   
+            actions.push(["add", [index, newVal, "existOld"]])
             continue;
         }
 
@@ -2577,11 +2588,11 @@ function myCompare(a , b, alreadyValues){
        
         //
         if(existNew && !oldV.includes(newVal)){
-
-            added++
            
             offset++
             add.push([index, newVal, "default"])
+
+            actions.push(["add", [index, newVal, "default"]])
            
             jobs.add("add")
 
@@ -2599,84 +2610,136 @@ function myCompare(a , b, alreadyValues){
         //REMOVE
         if( index < oldV.length && !newV.includes(oldVal)){
 
-            removed++
             offset--
-            remove.push([ index, oldVal, newVal])
 
+            remove.push( [ index, oldVal, newVal])
+
+
+            actions.push(["remove", [ index, oldVal, newVal]])
+            debugger
             jobs.add("remove")
 
             
-
             oldDone = true
        
-            continue;
+           
         }
 
         //MOVE
         //from old to new
         //
-        if(!newDone && newV.includes(oldVal)){
+        if(oldV.includes(newVal)){
 
  
-            const obj = [index, undefined,  oldVal, newVal, "oldToNew"]
+            // oldIndex, newIndex , oldVal, newVal,
+            const obj = [ undefined, index,  oldVal,  newVal,  "oldToNew"]
             
             move.push(obj)
 
+            actions.push(["move", obj])
             // oldValueMoves.set(newVal, )
    
             jobs.add("move")
             continue
         }
 
-        //from new to old
-        if(!oldDone &&  oldV.includes(newVal)){
-            let oldIndex = newIndexMap.get(oldVal)
-
-            throw new Error("Not implemented")
-            if(!oldIndex)debugger
-            move.push([index, oldIndex,   oldVal, newVal , "newToOld"])
-
-            jobs.add("move")
-        }
-        
-        if(!oldDone || !newDone){
-            // console.warn("iplement", {oldDone, newDone, index, oldV, newV, oldVal, newVal})
-        }
+     
+      
        
 
     }
 
    
+ 
     //update index of moves
-  
-    move.forEach((move)=>{
+    
+    const l = move.length
+    let realIndex = -1
+    for(let i = 0; i < l; i++){
 
-        if(!oldValueIndexes.has(move[2])){
+        realIndex++
+
+        const m = move[realIndex]
+
+        debugger
+
+        //old index of new value
+        const newVal = m[3]
+        if(!oldValueIndexes.has(newVal)){
             debugger
         }
         //if the value is repeated the could have multiple indexes
         //so go removing indexes
-        const indexes = oldValueIndexes.get(move[2])
+        const indexes = oldValueIndexes.get(newVal)
 
-        const index = indexes.shift()
+        if(!indexes) {
+            
+            throw new Error("The value should have index") 
+        }
+
+
+        //if is longer than one, remove the first one
+        //this maybe means that the value is added...
+        //because the new value has more of the same value than the old array
+        if(!indexes.length) {
+
+            realIndex--
+            move.splice(realIndex, 1)
+            add.push([m[1], m[3], "move"])
+            jobs.add("add")
+            offset++
+
+            debugger
+            continue; 
+        }
+        
+        // const index = indexes.length > 1 ? indexes.shift() :indexes[0]
+        const index = indexes.shift() 
+
+        //index is equal to the new index, it's a new value
+        if(index == m[1]){
+
+            realIndex--
+            move.splice(realIndex, 1)
+            add.push([m[1], m[3], "move"])
+            jobs.add("add")
+            offset++
+
+            continue 
+
+        }
 
         if(typeof index !== "number")debugger
-        move[1] = index
+        m[0] = index
+    }
 
-    })
+    if(move.length == 0 && jobs.has("move")){
+        jobs.delete("move")
+     }
+
    
 
+    if(offset + oldV.length !== newV.length){
+
+        debugger
+        console.log(offset , oldV.length, newV.length)
+       console.error("The arrays are not the same length", offset , oldV.length, newV.length)
+     } 
+
+    
     return { 
+        indexActions,
         jobs,
         add ,
         remove,
         move,
-
+        oldValueIndexes,
         updated,
         offset
     }
 
 }
+
 
 
 o1 = { v:"1"};
@@ -2686,109 +2749,138 @@ o4 = { v:"4"};
 o5 = { v:"5"};
 
 
-//splice like
- a = [o1, o2,o3, o4,o5] // len 5
- b = [o1, o2, {v:"6"}, {v:"7"}, o4,o5,]  // ln 6
-
- console.time("myCompare")
- console.log(myCompare(a,b))
- console.timeEnd("myCompare")
- console.time("minimalMovesToTransformArray")
- console.log(minimalMovesToTransformArray(a,b))
- console.timeEnd("minimalMovesToTransformArray")
-  //delete one 
-  a = [o1, o2,o3, o4,o5]
-  b = [o1, o2, o4,o5,]  
-
-  console.time("myCompare")
-  console.log(myCompare(a,b))
-  console.timeEnd("myCompare")
-  console.time("minimalMovesToTransformArray")
-  console.log(minimalMovesToTransformArray(a,b))
-  console.timeEnd("minimalMovesToTransformArray")
+if(false){
 
 
-  //same value twice 
- a = [o1, o2,o3, o4,o5]
- b = [o1, o2,o1 , o4,o5, o3]  
-  console.time("myCompare")
- console.log(myCompare(a,b))
- console.timeEnd("myCompare")
- console.time("minimalMovesToTransformArray")
- console.log(minimalMovesToTransformArray(a,b))
- console.timeEnd("minimalMovesToTransformArray")
-
-   //same value twice 
-   a = [o1, o2,o4, o3, o4,o5]
-   b = [o1, o2,o1 , o4,o5, o3]  
-  console.time("myCompare")
- console.log(myCompare(a,b))
- console.timeEnd("myCompare")
- console.time("minimalMovesToTransformArray")
- console.log(minimalMovesToTransformArray(a,b))
- console.timeEnd("minimalMovesToTransformArray")
 
 
- a = []
- b = [o1, o2,o1 , o4,o5, o3]  
-console.time("myCompare")
-console.log(myCompare(a,b))
-console.timeEnd("myCompare")
-console.time("minimalMovesToTransformArray")
-console.log(minimalMovesToTransformArray(a,b))
-console.timeEnd("minimalMovesToTransformArray")
 
-a = [o1, o2,o4, o3, o4,o5]
-b = []  
-console.time("myCompare")
-console.log(myCompare(a,b))
-console.timeEnd("myCompare")
-console.time("minimalMovesToTransformArray")
-console.log(minimalMovesToTransformArray(a,b))
-console.timeEnd("minimalMovesToTransformArray")
+    //splice like
+    a = [o1, o2,o3, o4,o5] // len 5
+    b = [o1, o2, {v:"6"}, {v:"7"}, o4,o5,]  // ln 6
 
-//reverse
-a = [o1, o2, o3, o4,o5]
-b = [  o5,o4,o2,o3,o1,]  
-console.time("myCompare")
-console.log(myCompare(a,b))
-console.timeEnd("myCompare")
-console.time("minimalMovesToTransformArray")
-console.log(minimalMovesToTransformArray(a,b))
-console.timeEnd("minimalMovesToTransformArray")
+    console.time("myCompare")
+    console.log(myCompare(a,b))
+    console.timeEnd("myCompare")
+    console.time("minimalMovesToTransformArray")
+    console.log(minimalMovesToTransformArray(a,b))
+    console.timeEnd("minimalMovesToTransformArray")
+    //delete one 
+    a = [o1, o2,o3, o4,o5]
+    b = [o1, o2, o4,o5,]  
+
+    console.time("myCompare")
+    console.log(myCompare(a,b))
+    console.timeEnd("myCompare")
+    console.time("minimalMovesToTransformArray")
+    console.log(minimalMovesToTransformArray(a,b))
+    console.timeEnd("minimalMovesToTransformArray")
 
 
-    //lon array 
-    //myCompare is faster with long arrays since traverse only one time
+    //same value twice 
+    a = [o1, o2,o3, o4,o5]
+    b = [o1, o2,o1 , o4,o5, o3]  
+    console.time("myCompare")
+    console.log(myCompare(a,b))
+    console.timeEnd("myCompare")
+    console.time("minimalMovesToTransformArray")
+    console.log(minimalMovesToTransformArray(a,b))
+    console.timeEnd("minimalMovesToTransformArray")
+
+    //same value twice 
+    a = [o1, o2,o4, o3, o4,o5]
+    b = [o1, o2,o1 , o4,o5, o3]  
+    console.time("myCompare")
+    console.log(myCompare(a,b))
+    console.timeEnd("myCompare")
+    console.time("minimalMovesToTransformArray")
+    console.log(minimalMovesToTransformArray(a,b))
+    console.timeEnd("minimalMovesToTransformArray")
+
+
+    a = []
+    b = [o1, o2,o1 , o4,o5, o3]  
+    console.time("myCompare")
+    console.log(myCompare(a,b))
+    console.timeEnd("myCompare")
+    console.time("minimalMovesToTransformArray")
+    console.log(minimalMovesToTransformArray(a,b))
+    console.timeEnd("minimalMovesToTransformArray")
+
+    a = [o1, o2,o4, o3, o4,o5]
+    b = []  
+    console.time("myCompare")
+    console.log(myCompare(a,b))
+    console.timeEnd("myCompare")
+    console.time("minimalMovesToTransformArray")
+    console.log(minimalMovesToTransformArray(a,b))
+    console.timeEnd("minimalMovesToTransformArray")
+
+    //reverse
+    a = [o1, o2, o3, o4,o5]
+    b = [  o5,o4,o2,o3,o1,]  
+    console.time("myCompare")
+    console.log(myCompare(a,b))
+    console.timeEnd("myCompare")
+    console.time("minimalMovesToTransformArray")
+    console.log(minimalMovesToTransformArray(a,b))
+    console.timeEnd("minimalMovesToTransformArray")
+
+
+        //lon array 
+        //myCompare is faster with long arrays since traverse only one time
 
     a = [ ...Array.from(Array(10000)),o1, o2,o4, o3, o4,o5]
     b = [...Array.from(Array(10000)), o1, o2,o1 , o4,o5, o3]  
-   console.time("myCompare")
-  console.log(myCompare(a,b))
-  console.timeEnd("myCompare")
-  console.time("minimalMovesToTransformArray")
-  console.log(minimalMovesToTransformArray(a,b))
-  console.timeEnd("minimalMovesToTransformArray")
+    console.time("myCompare")
+    console.log(myCompare(a,b))
+    console.timeEnd("myCompare")
+    console.time("minimalMovesToTransformArray")
+    console.log(minimalMovesToTransformArray(a,b))
+    console.timeEnd("minimalMovesToTransformArray")
 
-  //add one
-  a = [o1, o2,o4, o3, o4,o5]
-  b = [o1, o2,o1 , o4,o5, o3, {"v":"6"}]  
- console.time("myCompare")
-console.log(myCompare(a,b))
-console.timeEnd("myCompare")
-console.time("minimalMovesToTransformArray")
-console.log(minimalMovesToTransformArray(a,b))
-console.timeEnd("minimalMovesToTransformArray")
+    //add one
+    a = [o1, o2,o4, o3, o4,o5]
+    b = [o1, o2,o1 , o4,o5, o3, {"v":"6"}]  
+    console.time("myCompare")
+    console.log(myCompare(a,b))
+    console.timeEnd("myCompare")
+    console.time("minimalMovesToTransformArray")
+    console.log(minimalMovesToTransformArray(a,b))
+    console.timeEnd("minimalMovesToTransformArray")
 
-a = [o1, o2, o3, o4,o5]
-b = [o1, o2, o3, o4,o5, {"v":"6"}]  
-console.time("myCompare")
-console.log(myCompare(a,b))
-console.timeEnd("myCompare")
-console.time("minimalMovesToTransformArray")
-console.log(minimalMovesToTransformArray(a,b))
-console.timeEnd("minimalMovesToTransformArray")
+    a = [o1, o2, o3, o4,o5]
+    b = [o1, o2, o3, o4,o5, {"v":"6"}]  
+    console.time("myCompare")
+    console.log(myCompare(a,b))
+    console.timeEnd("myCompare")
+    console.time("minimalMovesToTransformArray")
+    console.log(minimalMovesToTransformArray(a,b))
+    console.timeEnd("minimalMovesToTransformArray")
 
+
+    a = [o1, o2, o3, o4,o5]
+    b = [o1, o2, o3,o2,o5,]  
+    console.time("myCompare")
+    console.log(myCompare(a,b))
+    console.timeEnd("myCompare")
+    console.time("minimalMovesToTransformArray")
+    console.log(minimalMovesToTransformArray(a,b))
+    console.timeEnd("minimalMovesToTransformArray")
+
+    a = [o1, o2, o3, o4,o5]
+    b = [o1, o2, o3,o5]  
+    console.time("myCompare")
+    console.log(myCompare(a,b))
+    console.timeEnd("myCompare")
+
+
+    a = [o1, o2, o3, o4,o5]
+    b = [o1, o2, o3,o3 ] 
+    console.log(myCompare(a,b))
+
+
+}
 
 
   //GPT version, 
