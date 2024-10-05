@@ -216,12 +216,12 @@
             const  [ loopKey, loopIndex , path] = expression 
             const items = value
    
-            const createFragment = (holders, oldFragment)=>{
-                const holder = document.createElement("div")
-                holders.push(holder)
-                if(oldFragment) holder.append(...oldFragment.childNodes)
-                return holder
-            }
+            // const createFragment = (holders, oldFragment)=>{
+            //     const holder = document.createElement("div")
+            //     holders.push(holder)
+            //     if(oldFragment) holder.append(...oldFragment.childNodes)
+            //     return holder
+            // }
 
 
             let template = helper.node.content
@@ -345,9 +345,11 @@
                  const newNode = document.createDocumentFragment()
                  newNode.append(...obj.nodes)
 
-                 //index is not update
-                  this.addToUpdate(newNode, fromIndex, newUpdate, groupState , indexMap, node)
-                    // ref.before(...obj.nodes)
+                 //TODO: seems that addToUpdate is not working when doing a splice and then a reverse()
+                //    this.addToUpdate(newNode, fromIndex, newUpdate, groupState , indexMap, node)
+
+                //    debugger
+                      ref.before(...obj.nodes)
                 //  if(entireMove){
                 //  }else{
                 //     ref.before(...obj.nodes)
@@ -451,10 +453,11 @@
         },
         updateLoop( newUpdate){
 
-        
+     
             newUpdate.forEach((group, index)=>{
                 const {nodes, ref} = group
       
+                debugger
                 ref.before(...nodes)
             }) 
 
@@ -1556,8 +1559,6 @@ function compileHelpers(root){
 }
 
 
-
-
       /**
        * 
        *
@@ -2051,6 +2052,8 @@ class NodeUpdate {
 
                 (payload)=>{
 
+                    // if(this.effect) this.effect.run()
+
                 //   if(this.expression == "attrs")debugger
                     //update each node
                     // this.ctxs.forEach(ctx=>{
@@ -2118,6 +2121,7 @@ class NodeUpdate {
             updateFunction(node , { value}, {expression, debug}, ctx){
 
                 if(debug)debugger
+
                 if(node.dataset && node.dataset.la )debugger
                 // value = get(ctx.data, expression)
                 if(value && value.attrs) debugger
@@ -2647,7 +2651,7 @@ function myCompare(a , b, alreadyValues){
 
 
             actions.push(["remove", [ index, oldVal, newVal]])
-            debugger
+      
             jobs.add("remove")
 
 
@@ -2698,7 +2702,7 @@ function myCompare(a , b, alreadyValues){
 
         const m = move[realIndex]
 
-        debugger
+
 
         //old index of new value
         const newVal = m[3]
@@ -2726,7 +2730,7 @@ function myCompare(a , b, alreadyValues){
             jobs.add("add")
             offset++
 
-            debugger
+
             continue; 
         }
         

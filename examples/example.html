@@ -52,7 +52,7 @@
             <input  value="{{list.0}}" type="text"> 
 
             <input  value="{{tasks.0.name}}" type="text">
-            <input  value="{{tasks.6.name:debug}}" type="text">
+            <input  value="{{tasks.6.name}}" type="text">
             <ul s-show="{{tasks}}"  style="list-style:auto">
 
         
@@ -62,8 +62,8 @@
 
        
                 <div>some content</div>
-                {{(()=>{
-                    return "Delete  " + this.rowsDelete;
+                Delete   {{(()=>{
+                    return 12 + this.rowsDelete;
                 })()}}
 
 
