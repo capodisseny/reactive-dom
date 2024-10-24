@@ -217,3 +217,14 @@ handler     6
             handler     2  
                 handler     2  
                     handler     1 deepest point 
+
+
+
+
+#EXPRESSIONS
+expressions should be always compatible with different backends
+a way with website builder is to use same template engine and use the prefix  "js"
+{{js some.prop + 23}}
+{{js ()=>{
+    some data 
+}}}
