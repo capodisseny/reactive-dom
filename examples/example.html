@@ -58,8 +58,16 @@
         
                 <!-- <template s-loop="{{item,i in list}}" >
                     <input  value="{{item}}" type="text" data-id="la" > {{item}}
-                </template> -->
+                </template> -->        {{ code
+                
+                    ()=>{
 
+                        return {
+                            some:"ada",
+                            aas:{a:{asd:"asda"} }//this could break the code 
+                        }
+                    }
+                }}
        
                 <div>some content</div>
                 Delete   {{(()=>{
@@ -67,6 +75,10 @@
                 })()}}
                 <!-- instead of this, in the textContent updater if it's a function just run it, don't return it -->
 
+                <!-- backedn compatible expressions -->
+                 {{js (()=>{
+                     return 12 + this.rowsDelete;
+                 })}}
 
            
                 <!-- {{(attrs? attrs.style: "")}} -->
